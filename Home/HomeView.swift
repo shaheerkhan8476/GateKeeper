@@ -12,11 +12,7 @@ import FirebaseFirestore
 
 struct HomeView: View {
     @EnvironmentObject var userViewModel: UserViewModel
-    @State private var showSheet: Bool = false
-    func addAccount() {
-        //
-    }
-    
+    @State private var showSheet = false
     var body: some View {
         NavigationStack {
             VStack {
@@ -26,6 +22,11 @@ struct HomeView: View {
                     Text("Welcome to Gatekeeper Manager!")
                 }
             }
+            Spacer()
+            VStack {
+                AccountView()
+            }
+            Spacer()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
@@ -36,18 +37,20 @@ struct HomeView: View {
                                   .cornerRadius(5)
                           }
                           .sheet(isPresented: $showSheet) {
-                              AccountView().presentationDetents([.fraction(0.25)])
+                              AddAccountView(showSheet: $showSheet).presentationDetents([.fraction(0.25)])
                           }
                 }
                 ToolbarItem(placement: .bottomBar) {
                     Button(action: {
                         do {
                             try Auth.auth().signOut()
+                            userViewModel.resetUserData()
                         } catch {
                             print(error)
                         }
                     }, label: {
                         Text("Log Out")
+                        
                     })
                 }
             }
@@ -57,7 +60,6 @@ struct HomeView: View {
                 }
             }
         }
-        
     }
 }
 

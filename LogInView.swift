@@ -14,7 +14,7 @@ struct LogInView: View {
     @State private var loggedIn: Bool = false
     @State private var name: String = ""
     let db = Firestore.firestore()
-    
+    @EnvironmentObject var userViewModel: UserViewModel
     var body: some View {
         VStack{
             Text("Sign up for GateKeeper Manager").bold()
@@ -54,6 +54,10 @@ struct LogInView: View {
             }
             else {
                 loggedIn.toggle()
+                Task {
+                    loggedIn = true
+                    await userViewModel.fetchUserData()
+                }
             }
         }
     }

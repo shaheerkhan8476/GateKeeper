@@ -2,24 +2,41 @@
 //  AccountView.swift
 //  Gatekeeper
 //
-//  Created by Shaheer Khan on 7/15/24.
+//  Created by Shaheer Khan on 7/18/24.
 //
 
 import SwiftUI
+import Foundation
+
 
 struct AccountView: View {
-    @State private var accountName: String = ""
-    @State private var accountPassword: String = ""
+    @EnvironmentObject var userViewModel: UserViewModel
+    
     var body: some View {
-        VStack {
-            TextField("Enter Account Name", text: $accountName)
-            Divider()
-            TextField("Enter Account Password", text: $accountPassword)
+            VStack {
+                if let accounts = userViewModel.userData?.accounts {
+                    ScrollView {
+                        VStack(alignment: .leading) {
+                            ForEach(accounts) {account in
+                                VStack(alignment: .leading) {
+                                    Text(account.name)
+                                        .font(.headline)
+                                    Text(account.password)
+                                        .font(.subheadline)
+                                }
+                                .padding()
+                                Divider()
+                            }
+                        }
+                    }
+                } else {
+                    Text("Add an Account!")
+                }
+            }
         }
-        .padding()
-    }
 }
 
-#Preview {
-    AccountView()
-}
+//#Preview {
+//    AccountView()
+//        .environmentObject(UserViewModel())
+//}

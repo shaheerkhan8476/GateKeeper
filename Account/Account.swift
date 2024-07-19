@@ -7,7 +7,11 @@
 
 import Foundation
 class Account: Identifiable {
-    var accountName: String = ""
-    var accountPassword: String = ""
-//    var tags: Tag 
+    var name: String = ""
+    var password: String = ""
+    
+    init(name: String, password: String) {
+        self.name = name
+        self.password = password
+    }
 }
