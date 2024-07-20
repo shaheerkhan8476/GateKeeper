@@ -17,9 +17,9 @@ struct HomeView: View {
         NavigationStack {
             VStack {
                 if let name = userViewModel.userData?.name {
-                    Text("Welcome to Gatekeeper Manager, \(name)!")
+                    Text("Gatekeeper Manager").bold()
                 } else {
-                    Text("Welcome to Gatekeeper Manager!")
+                    Text("Gatekeeper Manager").bold()
                 }
             }
             Spacer()

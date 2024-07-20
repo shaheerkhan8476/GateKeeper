@@ -20,6 +20,7 @@ struct AddAccountView: View {
             TextField("Enter Account Password", text: $accountPassword)
             
         }
+        .padding()
         VStack {
             Button(action: {
                 if accountName != "" && accountPassword != "" {
