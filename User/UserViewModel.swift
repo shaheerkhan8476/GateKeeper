@@ -10,7 +10,7 @@ import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
 
-class UserViewModel: ObservableObject {
+@MainActor class UserViewModel: ObservableObject {
     @Published var userData: User? = nil
     let db = Firestore.firestore()
     func fetchUserData() async {

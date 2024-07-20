@@ -11,19 +11,13 @@ import Foundation
 
 struct AccountView: View {
     @EnvironmentObject var userViewModel: UserViewModel
-    
     var body: some View {
             VStack {
                 if let accounts = userViewModel.userData?.accounts {
                     List {
                         ForEach(accounts) { account in
-                            VStack(alignment: .leading) {
-                                Text(account.name)
-                                    .font(.headline)
-                                Text(account.password)
-                                    .font(.subheadline)
-                            }
-                            .padding()
+                            AccountItemView(account: account)
+                        
                         }
                         .onDelete { account in
                             Task {
