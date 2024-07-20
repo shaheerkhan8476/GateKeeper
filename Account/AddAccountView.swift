@@ -18,7 +18,6 @@ struct AddAccountView: View {
             TextField("Enter Account Name", text: $accountName)
             Divider()
             SecureField("Enter Account Password", text: $accountPassword)
-            
         }
         .padding()
         VStack {

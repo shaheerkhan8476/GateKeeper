@@ -24,13 +24,12 @@ struct AccountItemView: View {
             }
             .padding()
             Spacer()
-            Button(action: {
-                isSecured.toggle()
-                  }) {
-                      Label("", systemImage: isSecured ? "lock.fill" : "lock.open.fill")
-                          .padding()
-                          .cornerRadius(5)
-                  }
+            Button {
+              isSecured.toggle()
+            } label: {
+              Label("", systemImage: isSecured ? "lock.fill" : "lock.open.fill")
+                .padding()
+            }
         }
     }
 }
