@@ -54,12 +54,31 @@ class UserViewModel: ObservableObject {
                         "accounts": FieldValue.arrayUnion([accountData])
                     ])
                     self.userData?.accounts?.append(account)
-                    await fetchUserData()
+                    
                 } catch {
                     print("Error updating document: \(error)")
                 }
             }
+        await fetchUserData()
         }
+    func deleteAccount(account: Account) async {
+        if let userId = Auth.auth().currentUser?.uid {
+            let docRef = db.collection("users").document(userId)
+            let accountData: [String: Any] = [
+                    "name": account.name,
+                    "password": account.password
+                ]
+            do {
+                try await docRef.updateData([
+                    "accounts": FieldValue.arrayRemove([accountData])
+                ])
+                
+            } catch {
+                print("Error deleting document: \(error)")
+            }
+        }
+        
+    }
     func resetUserData() {
             self.userData = nil
         }

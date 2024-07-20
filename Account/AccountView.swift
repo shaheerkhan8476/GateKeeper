@@ -15,23 +15,32 @@ struct AccountView: View {
     var body: some View {
             VStack {
                 if let accounts = userViewModel.userData?.accounts {
-                    ScrollView {
-                        VStack(alignment: .leading) {
-                            ForEach(accounts) {account in
-                                VStack(alignment: .leading) {
-                                    Text(account.name)
-                                        .font(.headline)
-                                    Text(account.password)
-                                        .font(.subheadline)
-                                }
-                                .padding()
-                                Divider()
+                    List {
+                        ForEach(accounts) { account in
+                            VStack(alignment: .leading) {
+                                Text(account.name)
+                                    .font(.headline)
+                                Text(account.password)
+                                    .font(.subheadline)
+                            }
+                            .padding()
+                        }
+                        .onDelete { account in
+                            Task {
+                                await deleteAccounts(at: account, from: accounts)
+                                await userViewModel.fetchUserData()
                             }
                         }
                     }
                 } else {
                     Text("Add an Account!")
                 }
+            }
+        }
+    private func deleteAccounts(at offsets: IndexSet, from accounts: [Account]) async {
+            for index in offsets {
+                let account = accounts[index]
+                await userViewModel.deleteAccount(account: account)
             }
         }
 }
