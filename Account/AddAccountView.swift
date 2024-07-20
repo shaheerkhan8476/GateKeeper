@@ -11,7 +11,6 @@ struct AddAccountView: View {
     @Binding var showSheet: Bool
     @State private var accountName: String = ""
     @State private var accountPassword: String = ""
-    @ObservedObject var accountViewModel = AccountViewModel()
     @EnvironmentObject var userViewModel: UserViewModel
     var body: some View {
         VStack {
