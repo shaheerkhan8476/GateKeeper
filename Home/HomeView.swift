@@ -16,11 +16,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                if let name = userViewModel.userData?.name {
-                    Text("Gatekeeper Manager").bold()
-                } else {
-                    Text("Gatekeeper Manager").bold()
-                }
+                Text("GateKeeper Manager").bold()
             }
             Spacer()
             VStack {
@@ -37,7 +33,8 @@ struct HomeView: View {
                                   .cornerRadius(5)
                           }
                           .sheet(isPresented: $showSheet) {
-                              AddAccountView(showSheet: $showSheet).presentationDetents([.fraction(0.25)])
+                              AddAccountView(showAddAccountSheet: $showSheet)
+                                  .presentationDetents([.fraction(0.25)])
                           }
                 }
                 ToolbarItem(placement: .bottomBar) {
@@ -62,7 +59,3 @@ struct HomeView: View {
         }
     }
 }
-
-//#Preview {
-//    HomeView()
-//}

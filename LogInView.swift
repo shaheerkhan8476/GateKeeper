@@ -17,7 +17,8 @@ struct LogInView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     var body: some View {
         VStack{
-            Text("Sign up for GateKeeper Manager").bold()
+            Text("Sign up for GateKeeper Manager")
+                .bold()
             Spacer()
             VStack {
                 TextField("What is your Name?", text: $name)
@@ -68,7 +69,7 @@ struct LogInView: View {
                 print(error!.localizedDescription)
             }
             else {
-                var newUser: User = User(email: authResult?.user.email, id: authResult?.user.uid)
+                let newUser: User = User(email: authResult?.user.email, id: authResult?.user.uid)
                 let documentName = authResult?.user.uid ?? "No UID"
                 Task{
                     do {

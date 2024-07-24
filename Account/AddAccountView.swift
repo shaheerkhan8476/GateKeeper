@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddAccountView: View {
-    @Binding var showSheet: Bool
+    @Binding var showAddAccountSheet: Bool
     @State private var accountName: String = ""
     @State private var accountPassword: String = ""
     @EnvironmentObject var userViewModel: UserViewModel
@@ -27,7 +27,7 @@ struct AddAccountView: View {
                         await userViewModel.addAccount(account: new_account)
                     }
                 }
-                showSheet = false
+                showAddAccountSheet = false
             }, label: {
                 Text("Add Account")
             }).buttonStyle(.borderedProminent)

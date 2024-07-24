@@ -21,14 +21,14 @@ import FirebaseFirestore
                 if let data = document.data(), document.exists {
                     var accounts: [Account] = []
                     if let accountsData = data["accounts"] as? [[String: Any]] {
-                     for accountDict in accountsData {
-                         if let accountName = accountDict["name"] as? String,
-                            let accountPassword = accountDict["password"] as? String {
-                             let account = Account(name: accountName, password: accountPassword)
-                             accounts.append(account)
-                         }
-                     }
-                 }
+                        for accountDict in accountsData {
+                            if let accountName = accountDict["name"] as? String,
+                               let accountPassword = accountDict["password"] as? String {
+                                let account = Account(name: accountName, password: accountPassword)
+                                accounts.append(account)
+                            }
+                        }
+                    }
                     let user = User(name: data["name"] as? String, id: userId, accounts: accounts)
                     self.userData = user
                 } else {
@@ -43,31 +43,31 @@ import FirebaseFirestore
         }
     }
     func addAccount(account: Account) async {
-            if let userId = Auth.auth().currentUser?.uid {
-                let accountData: [String: Any] = [
-                    "name": account.name,
-                    "password": account.password
-                ]
-                let docRef = db.collection("users").document(userId)
-                do {
-                    try await docRef.updateData([
-                        "accounts": FieldValue.arrayUnion([accountData])
-                    ])
-                    self.userData?.accounts?.append(account)
-                    
-                } catch {
-                    print("Error updating document: \(error)")
-                }
+        if let userId = Auth.auth().currentUser?.uid {
+            let accountData: [String: Any] = [
+                "name": account.name,
+                "password": account.password
+            ]
+            let docRef = db.collection("users").document(userId)
+            do {
+                try await docRef.updateData([
+                    "accounts": FieldValue.arrayUnion([accountData])
+                ])
+                self.userData?.accounts?.append(account)
+                
+            } catch {
+                print("Error updating document: \(error)")
             }
-        await fetchUserData()
         }
+        await fetchUserData()
+    }
     func deleteAccount(account: Account) async {
         if let userId = Auth.auth().currentUser?.uid {
             let docRef = db.collection("users").document(userId)
             let accountData: [String: Any] = [
-                    "name": account.name,
-                    "password": account.password
-                ]
+                "name": account.name,
+                "password": account.password
+            ]
             do {
                 try await docRef.updateData([
                     "accounts": FieldValue.arrayRemove([accountData])
@@ -79,7 +79,14 @@ import FirebaseFirestore
         }
         
     }
-    func resetUserData() {
+    
+    func editAccount(account: Account) async {
+        if let userId = Auth.auth().currentUser?.uid {
+            let docRef = db.collection("users").document(userId)
+        }
+        
+        func resetUserData() {
             self.userData = nil
         }
+    }
 }
