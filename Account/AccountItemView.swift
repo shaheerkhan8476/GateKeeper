@@ -9,7 +9,9 @@ import SwiftUI
 
 struct AccountItemView: View {
     let account: Account
+    
     @State private var isSecured: Bool = true
+    
     var body: some View {
         HStack{
             HStack{

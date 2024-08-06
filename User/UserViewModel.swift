@@ -83,10 +83,13 @@ import FirebaseFirestore
     func editAccount(account: Account) async {
         if let userId = Auth.auth().currentUser?.uid {
             let docRef = db.collection("users").document(userId)
+            
         }
         
-        func resetUserData() {
-            self.userData = nil
-        }
+        
+        
+    }
+    func resetUserData() {
+        self.userData = nil
     }
 }

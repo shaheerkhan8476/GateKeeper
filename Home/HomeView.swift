@@ -16,46 +16,46 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("GateKeeper Manager").bold()
+                Text("Accounts").bold()
             }
             Spacer()
             VStack {
                 AccountView()
             }
             Spacer()
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        showSheet.toggle()
-                          }) {
-                          Label("Add Account", systemImage: "plus.app.fill")
-                                  .padding()
-                                  .cornerRadius(5)
-                          }
-                          .sheet(isPresented: $showSheet) {
-                              AddAccountView(showAddAccountSheet: $showSheet)
-                                  .presentationDetents([.fraction(0.25)])
-                          }
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Button(action: {
-                        do {
-                            try Auth.auth().signOut()
-                            userViewModel.resetUserData()
-                        } catch {
-                            print(error)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            showSheet.toggle()
+                        }) {
+                            Label("Add Account", systemImage: "plus.app.fill")
+                                .padding()
+                                .cornerRadius(5)
                         }
-                    }, label: {
-                        Text("Log Out")
-                        
-                    })
+                        .sheet(isPresented: $showSheet) {
+                            AddAccountView(showAddAccountSheet: $showSheet)
+                                .presentationDetents([.fraction(0.25)])
+                        }
+                    }
+                    ToolbarItem(placement: .bottomBar) {
+                        Button(action: {
+                            do {
+                                try Auth.auth().signOut()
+                                userViewModel.resetUserData()
+                            } catch {
+                                print(error)
+                            }
+                        }, label: {
+                            Text("Log Out")
+                        })
+                    }
                 }
-            }
-            .onAppear {
+            }.onAppear {
                 Task {
                     await userViewModel.fetchUserData()
                 }
             }
+            
         }
     }
-}
+
