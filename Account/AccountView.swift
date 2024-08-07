@@ -16,7 +16,9 @@ struct AccountView: View {
                 if let accounts = userViewModel.userData?.accounts {
                     List {
                         ForEach(accounts) { account in
-                            AccountItemView(account: account) 
+                            NavigationLink(destination: AccountItemDetailView(account: account, name: account.name)) {
+                                AccountItemView(account: account)
+                            }
                         }
                         .onDelete { account in
                             Task {
