@@ -36,7 +36,3 @@ struct AddAccountView: View {
         .padding()
     }
 }
-
-//#Preview {
-//    AccountView()
-//}

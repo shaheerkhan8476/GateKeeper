@@ -11,23 +11,45 @@ struct AccountItemDetailView: View {
     let account: Account
     @EnvironmentObject var userViewModel: UserViewModel
     @State var name: String
+    @State var password: String
+    
     var body: some View {
-        VStack{
+        VStack(spacing: 20) {
+            HStack {
+                Text("Account Name:")
+                    .font(.headline)
+            }
             TextField(account.name, text: $name)
-            Text(account.password)
-        }
-        Button(action: {
-            let new_account = Account(name: name, password: account.password)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+
+            HStack {
+                Text("Account Password:")
+                    .font(.headline)
+               
+            }
+            SecureField(account.password, text: $password)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+
+            Button(action: {
+                account.name = name
+                account.password = password
                 Task {
-                    await userViewModel.editAccount(account: new_account)
-                    
+                    await userViewModel.editAccount(account: account)
                 }
-        }, label: {
-            Text("Save Account")
-        }).buttonStyle(.borderedProminent)
+            }, label: {
+                Text("Save Account")
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            })
             .padding()
+        }
+        .padding()
+        .navigationTitle("Account Details")
+        .navigationBarTitleDisplayMode(.inline)
     }
-        
 }
-
-
