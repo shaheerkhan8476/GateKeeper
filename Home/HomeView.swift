@@ -17,12 +17,12 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
-                // Gradient-styled "Hello" text
+    
                 Text("Accounts")
                     .font(.system(size: 36, weight: .bold))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.red, .blue, .green, .yellow],
+                            colors: [.red, .blue, .purple],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -59,16 +59,7 @@ struct HomeView: View {
                 }
                 
                 ToolbarItem(placement: .bottomBar) {
-                    Button(action: {
-                        do {
-                            try Auth.auth().signOut()
-                            userViewModel.resetUserData()
-                        } catch {
-                            print(error)
-                        }
-                    }, label: {
-                        Text("Log Out")
-                    })
+                    
                 }
             }
             .onAppear {

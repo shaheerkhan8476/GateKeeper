@@ -31,7 +31,7 @@ struct AccountItemDetailView: View {
             SecureField(account.password, text: $password)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
-
+            
             Button(action: {
                 account.name = name
                 account.password = password
