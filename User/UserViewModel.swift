@@ -30,7 +30,7 @@ import FirebaseFirestore
                             }
                         }
                     }
-                    let user = User(name: data["name"] as? String, id: userId, accounts: accounts)
+                    let user = User(name: data["name"] as? String, email: data["email"] as? String, id: userId, accounts: accounts)
                     self.userData = user
                 } else {
                     print("Document does not exist")
@@ -91,7 +91,6 @@ import FirebaseFirestore
                 if document.exists, var data = document.data(), var accountsData = data["accounts"] as? [[String: Any]] {
                     if let index = accountsData.firstIndex(where: { $0["id"] as? String == account.id }) {
                         print("Found account at index: \(index)")
-                        
                         accountsData[index]["name"] = account.name
                         accountsData[index]["password"] = account.password
                         print("Updated account data: \(accountsData[index])")

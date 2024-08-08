@@ -75,7 +75,7 @@ struct LogInView: View {
                     do {
                         try await db.collection("users").document(documentName).setData([
                             "name": name,
-                            "email": newUser.email,
+                            "email": email,
                             "id": newUser.id,
                             "accounts": newUser.accounts
                         ])
