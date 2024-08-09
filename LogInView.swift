@@ -49,7 +49,6 @@ struct LogInView: View {
     
     func login() {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            
             if error != nil {
                 print(error!.localizedDescription)
             }

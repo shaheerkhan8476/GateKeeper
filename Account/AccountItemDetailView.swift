@@ -9,10 +9,11 @@ import SwiftUI
 
 struct AccountItemDetailView: View {
     let account: Account
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var userViewModel: UserViewModel
     @State var name: String
     @State var password: String
-    
+   
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -36,9 +37,13 @@ struct AccountItemDetailView: View {
                 account.name = name
                 account.password = password
                 Task {
-                    await userViewModel.editAccount(account: account)
+                    await userViewModel.editAccount(account: account)   
+                    await MainActor.run {
+                      dismiss()
+                    }
                 }
-            }, label: {
+                
+                            }, label: {
                 Text("Save Account")
                     .buttonStyle(.borderedProminent)
                     .padding()
@@ -51,5 +56,7 @@ struct AccountItemDetailView: View {
         .padding()
         .navigationTitle("Account Details")
         .navigationBarTitleDisplayMode(.inline)
+        
     }
+    
 }
