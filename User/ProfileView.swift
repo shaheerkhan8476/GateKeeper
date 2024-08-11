@@ -16,9 +16,17 @@ struct ProfileView: View {
         if let userData = userViewModel.userData {
             VStack {
                 Spacer()
-                Text(userData.name ?? "User Data").bold()
+                HStack{
+                    Text("Name: ").bold()
+                    Spacer()
+                    Text(userData.name ?? "User Data").bold()
+                }
                 Divider()
-                Text(userData.email ?? "No Email").bold()
+                HStack {
+                    Text("Email: ").bold()
+                    Spacer()
+                    Text(userData.email ?? "No Email").bold()
+                }
                 Spacer()
                 Button(action: {
                     do {

@@ -17,15 +17,23 @@ struct LogInView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     var body: some View {
         VStack{
-            Text("Sign up for GateKeeper Manager")
-                .bold()
+            Spacer()
+            Text("GateKeeper")
+                .bold().font(.system(size: 50)).foregroundStyle(
+                    LinearGradient(
+                        colors: [.red, .blue, .purple],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                
             Spacer()
             VStack {
-                TextField("What is your Name?", text: $name)
+                TextField("What is your Name?", text: $name).textFieldStyle(RoundedBorderTextFieldStyle())
                 Divider()
-                TextField("Enter Email", text: $email)
+                TextField("Enter Email", text: $email).textFieldStyle(RoundedBorderTextFieldStyle())
                 Divider()
-                SecureField("Enter Password", text: $password)
+                SecureField("Enter Password", text: $password).textFieldStyle(RoundedBorderTextFieldStyle())
             }
             .padding()
             Spacer()
@@ -75,8 +83,8 @@ struct LogInView: View {
                         try await db.collection("users").document(documentName).setData([
                             "name": name,
                             "email": email,
-                            "id": newUser.id,
-                            "accounts": newUser.accounts
+                            "id": newUser.id ?? "",
+                            "accounts": newUser.accounts ?? []
                         ])
                         print("Document successfully written!")
                     } catch {

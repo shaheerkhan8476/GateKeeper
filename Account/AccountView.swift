@@ -16,10 +16,10 @@ struct AccountView: View {
                 if let accounts = userViewModel.userData?.accounts {
                     List {
                         ForEach(accounts) { account in
-                            HStack {
+                           
                                 AccountItemView(account: account)
-                                
-                            }
+                                .listRowSeparatorTint(.purple)
+                            
                         }
                         .onDelete { account in
                             Task {
@@ -28,6 +28,8 @@ struct AccountView: View {
                             }
                         }
                     }
+                    .listStyle(.inset)
+                    .padding()
                 } else {
                     Text("Add an Account!")
                 }
@@ -41,7 +43,3 @@ struct AccountView: View {
         }
 }
 
-//#Preview {
-//    AccountView()
-//        .environmentObject(UserViewModel())
-//}
