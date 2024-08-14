@@ -9,6 +9,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
+import CryptoKit
 
 @MainActor class UserViewModel: ObservableObject {
     @Published var userData: User? = nil
@@ -120,4 +121,42 @@ import FirebaseFirestore
     func resetUserData() {
         self.userData = nil
     }
+    
+    func encryptData(sensitive: String, key: SymmetricKey) -> Data? {
+                    do {
+                var data: Data = sensitive.data(using: .utf8)!
+                let sealedBox = try AES.GCM.seal(data, using: key)
+                return sealedBox.combined
+            } catch {
+                print("Encryption failed: \(error)")
+                return nil
+            }
+        
+    }
+    func decryptData(encryptedData: Data, key: SymmetricKey) -> String? {
+        do {
+            
+            let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
+            let decryptedData = try AES.GCM.open(sealedBox, using: key)
+            return String(data: decryptedData, encoding: .utf8)
+        } catch {
+            print("Decryption failed: \(error)")
+            return nil
+        }
+    }
+    
+    func retrieveSymmetricKey() -> SymmetricKey? {
+           guard let user = userData else {
+               print("No user is set in the ViewModel")
+               return nil
+           }
+           
+           if let key = user.retrieveSymmetricKey() {
+               print("Symmetric key retrieved successfully: \(key)")
+               return key
+           } else {
+               print("Failed to retrieve the symmetric key.")
+               return nil
+           }
+       }
 }

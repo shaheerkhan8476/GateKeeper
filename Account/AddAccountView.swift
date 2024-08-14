@@ -25,6 +25,7 @@ struct AddAccountView: View {
                     let new_account = Account(name: accountName, password: accountPassword)
                     Task {
                         await userViewModel.addAccount(account: new_account)
+                        userViewModel.retrieveSymmetricKey()
                     }
                 }
                 showAddAccountSheet = false
