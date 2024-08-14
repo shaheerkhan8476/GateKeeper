@@ -11,7 +11,7 @@ struct AccountItemView: View {
     @State private var isSecured: Bool = true
     
     var body: some View {
-        NavigationLink(destination: AccountItemDetailView(account: account, name: account.name, password: account.password)) {
+        NavigationLink(destination: AccountItemDetailView(account: account, name: account.name, password: account.password, price: String(account.price))) {
             HStack {
                 VStack(alignment: .leading) {
                     Text(account.name)
@@ -27,6 +27,10 @@ struct AccountItemView: View {
                 .padding()
                 
                 Spacer()
+                
+                HStack{
+                    Text("$\(String(account.price))").font(.headline).foregroundColor(.green)
+                }
                 
                 Button(action: {
                     isSecured.toggle()

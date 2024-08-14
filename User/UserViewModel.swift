@@ -25,8 +25,9 @@ import CryptoKit
                         for accountDict in accountsData {
                             if let accountName = accountDict["name"] as? String,
                                let accountPassword = accountDict["password"] as? String,
-                               let accountID = accountDict["id"] as? String {
-                                let account = Account(name: accountName, password: accountPassword, id: accountID)
+                               let accountID = accountDict["id"] as? String,
+                               let accountPrice = accountDict["price"] as? Double{
+                                let account = Account(name: accountName, password: accountPassword, id: accountID, price: accountPrice)
                                 accounts.append(account)
                             }
                         }
@@ -50,7 +51,8 @@ import CryptoKit
             let accountData: [String: Any] = [
                 "name": account.name,
                 "password": account.password,
-                "id": account.id
+                "id": account.id,
+                "price": account.price
             ]
             let docRef = db.collection("users").document(userId)
             do {
@@ -89,8 +91,6 @@ import CryptoKit
             print("No authenticated user found")
         }
     }
-
-    
     func editAccount(account: Account) async {
         if let userId = Auth.auth().currentUser?.uid {
             let docRef = db.collection("users").document(userId)
@@ -101,6 +101,9 @@ import CryptoKit
                         print("Found account at index: \(index)")
                         accountsData[index]["name"] = account.name
                         accountsData[index]["password"] = account.password
+                        print(account.price)
+                        print(accountsData[index]["price"])
+                        accountsData[index]["price"] = account.price
                         print("Updated account data: \(accountsData[index])")
                         print("Accounts data to be updated: \(accountsData)")
                         try await docRef.updateData([
@@ -128,7 +131,6 @@ import CryptoKit
     func resetUserData() {
         self.userData = nil
     }
-    
     func encryptData(sensitive: String, key: SymmetricKey) -> Data? {
         do {
             let data: Data = sensitive.data(using: .utf8)!

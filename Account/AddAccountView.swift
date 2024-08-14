@@ -10,6 +10,7 @@ struct AddAccountView: View {
     @Binding var showAddAccountSheet: Bool
     @State private var accountName: String = ""
     @State private var accountPassword: String = ""
+    @State private var accountPrice: String = ""
     @EnvironmentObject var userViewModel: UserViewModel
     
     var body: some View {
@@ -17,6 +18,8 @@ struct AddAccountView: View {
             TextField("Enter Account Name", text: $accountName)
             Divider()
             SecureField("Enter Account Password", text: $accountPassword)
+            Divider()
+            TextField("Enter Monthly Price", text: $accountPrice)
         }
         .padding()
         VStack {
@@ -29,8 +32,7 @@ struct AddAccountView: View {
                             if let encryptedPasswordData = userViewModel.encryptData(sensitive: accountPassword, key: key) {
                                 // Create a new account with the encrypted password
                                 let encryptedPasswordString = encryptedPasswordData.base64EncodedString()
-                                let newAccount = Account(name: accountName, password: encryptedPasswordString)
-                                
+                                let newAccount = Account(name: accountName, password: encryptedPasswordString, price: Double(accountPrice) ?? 0.0)
                                 // Add the account
                                 await userViewModel.addAccount(account: newAccount)
                             } else {

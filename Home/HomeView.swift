@@ -54,12 +54,15 @@ struct HomeView: View {
                     }
                     .sheet(isPresented: $showSheet) {
                         AddAccountView(showAddAccountSheet: $showSheet)
-                            .presentationDetents([.fraction(0.25)])
+                            .presentationDetents([.fraction(0.33)])
                     }
                 }
                 
                 ToolbarItem(placement: .bottomBar) {
-                    
+                    HStack {
+                        Text("Total Monthly Cost:").foregroundColor(.green)
+                            .font(.subheadline.bold())
+                    }
                 }
             }
             .onAppear {

@@ -11,8 +11,8 @@ struct AccountItemDetailView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var userViewModel: UserViewModel
     @State var name: String
-    @State var password: String
-   
+    @State  var password: String
+    @State var price: String
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -30,6 +30,13 @@ struct AccountItemDetailView: View {
             SecureField("Enter account password", text: $password)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
+            HStack {
+                Text("Monthly Price: ")
+                    .font(.headline)
+            }
+            TextField("Enter Subscription Price: ", text: $price)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
             
             Button(action: {
                 Task {
@@ -38,6 +45,7 @@ struct AccountItemDetailView: View {
                         if let encryptedPasswordData = userViewModel.encryptData(sensitive: password, key: key) {
                             account.name = name
                             account.password = encryptedPasswordData.base64EncodedString()
+                            account.price = Double(price) ?? account.price
                             await userViewModel.editAccount(account: account)
                         } else {
                             print("Failed to encrypt password")
