@@ -18,7 +18,8 @@ class User: Identifiable {
         self.email = email
         self.id = id
         self.accounts = accounts
-        if let key = retrieveSymmetricKey() {
+        
+        if retrieveSymmetricKey() != nil {
                 print("Retrieved existing key")
             } else {
                 let key = SymmetricKey(size: .bits256)

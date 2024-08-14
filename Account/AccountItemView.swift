@@ -29,7 +29,7 @@ struct AccountItemView: View {
                 Spacer()
                 
                 HStack{
-                    Text("$\(String(account.price))").font(.headline).foregroundColor(.green)
+                    Text(account.price > 0 ? "$\(String(account.price))" : "$0").font(.headline).foregroundColor(.green)
                 }
                 
                 Button(action: {

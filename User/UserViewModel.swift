@@ -13,6 +13,7 @@ import CryptoKit
 
 @MainActor class UserViewModel: ObservableObject {
     @Published var userData: User? = nil
+    @Published var totalPrice: Double = 0.0
     let db = Firestore.firestore()
     func fetchUserData() async {
         if let userId = Auth.auth().currentUser?.uid {
@@ -35,6 +36,7 @@ import CryptoKit
                     let user = User(name: data["name"] as? String, email: data["email"] as? String, id: userId, accounts: accounts)
                     self.userData = user
                     self.decryptPasswords()
+                    self.calculateTotalCost()
                 } else {
                     print("Document does not exist")
                 }
@@ -46,13 +48,14 @@ import CryptoKit
             return
         }
     }
+    
     func addAccount(account: Account) async {
         if let userId = Auth.auth().currentUser?.uid {
             let accountData: [String: Any] = [
                 "name": account.name,
                 "password": account.password,
                 "id": account.id,
-                "price": account.price
+                "price": account.price > 0 ? account.price : 0
             ]
             let docRef = db.collection("users").document(userId)
             do {
@@ -67,12 +70,13 @@ import CryptoKit
         }
         await fetchUserData()
     }
+    
     func deleteAccount(account: Account) async {
         if let userId = Auth.auth().currentUser?.uid {
             let docRef = db.collection("users").document(userId)
             do {
                 let document = try await docRef.getDocument()
-                if var data = document.data(), var accountsData = data["accounts"] as? [[String: Any]] {
+                if let data = document.data(), var accountsData = data["accounts"] as? [[String: Any]] {
                     if let index = accountsData.firstIndex(where: { $0["id"] as? String == account.id }) {
                         accountsData.remove(at: index)
                         try await docRef.updateData([
@@ -80,6 +84,7 @@ import CryptoKit
                         ])
                         userData?.accounts?.removeAll(where: { $0.id == account.id })
                         print("Account deleted successfully")
+                        self.calculateTotalCost()
                     } else {
                         print("Account not found")
                     }
@@ -91,6 +96,7 @@ import CryptoKit
             print("No authenticated user found")
         }
     }
+    
     func editAccount(account: Account) async {
         if let userId = Auth.auth().currentUser?.uid {
             let docRef = db.collection("users").document(userId)
@@ -98,25 +104,19 @@ import CryptoKit
                 let document = try await docRef.getDocument()
                 if document.exists, let data = document.data(), var accountsData = data["accounts"] as? [[String: Any]] {
                     if let index = accountsData.firstIndex(where: { $0["id"] as? String == account.id }) {
-                        print("Found account at index: \(index)")
                         accountsData[index]["name"] = account.name
                         accountsData[index]["password"] = account.password
-                        print(account.price)
-                        print(accountsData[index]["price"])
-                        accountsData[index]["price"] = account.price
-                        print("Updated account data: \(accountsData[index])")
-                        print("Accounts data to be updated: \(accountsData)")
+                        accountsData[index]["price"] = account.price > 0 ? account.price : 0
                         try await docRef.updateData([
                             "accounts": accountsData
                         ])
                         print("Firestore document updated successfully")
-                        
                         if var userAccounts = userData?.accounts, let userIndex = userAccounts.firstIndex(where: { $0.id == account.id }) {
                             userAccounts[userIndex] = account
                             self.userData?.accounts = userAccounts
                             print("Local userData updated")
                         }
-                        
+                        self.calculateTotalCost()
                     } else {
                         print("Account with ID \(account.id) not found in Firestore data")
                     }
@@ -131,6 +131,7 @@ import CryptoKit
     func resetUserData() {
         self.userData = nil
     }
+    
     func encryptData(sensitive: String, key: SymmetricKey) -> Data? {
         do {
             let data: Data = sensitive.data(using: .utf8)!
@@ -142,6 +143,7 @@ import CryptoKit
         }
         
     }
+    
     func decryptData(encryptedData: Data, key: SymmetricKey) -> String? {
         do {
             
@@ -153,6 +155,7 @@ import CryptoKit
             return nil
         }
     }
+    
     func retrieveSymmetricKey() -> SymmetricKey? {
         if let user = userData {
             if let key = user.retrieveSymmetricKey() {
@@ -166,6 +169,7 @@ import CryptoKit
             return nil
         }
     }
+    
     func decryptPasswords() {
         if let accounts = userData?.accounts {
             for index in accounts.indices {
@@ -179,4 +183,16 @@ import CryptoKit
             }
         }
     }
+    
+    func calculateTotalCost() {
+            var total: Double = 0.0
+            if let accounts = userData?.accounts {
+                for account in accounts {
+                    if account.price > 0 {
+                        total += account.price
+                    }
+                }
+            }
+            totalPrice = total
+        }
 }

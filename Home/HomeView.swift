@@ -13,7 +13,7 @@ struct HomeView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     @State private var showSheet = false
     @State private var showUserSheet = false
-    
+    @State private var total: Double? = 0.0
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -60,15 +60,17 @@ struct HomeView: View {
                 
                 ToolbarItem(placement: .bottomBar) {
                     HStack {
-                        Text("Total Monthly Cost:").foregroundColor(.green)
-                            .font(.subheadline.bold())
+                        Text("Total Monthly Cost: $\(userViewModel.totalPrice, specifier: "%.2f")").foregroundColor(.green)
+                                                    .font(.subheadline.bold())
                     }
                 }
             }
             .onAppear {
                 Task {
                     await userViewModel.fetchUserData()
+                    
                 }
+                
             }
         }
     }
