@@ -19,33 +19,20 @@ class User: Identifiable {
         self.id = id
         self.accounts = accounts
         if let key = retrieveSymmetricKey() {
-                    print("Retrieved existing key")
-                    
-                } else {
-                    
-                    let key = SymmetricKey(size: .bits256)
-                    let keyData = key.withUnsafeBytes { Data(Array($0)) }
-                    KeychainHelper.storeData(data: keyData, forService: "symkey", account: self.id ?? "GateKeeper")
-                    print("Generated and stored new key")
-                   
-                }
-        
+                print("Retrieved existing key")
+            } else {
+                let key = SymmetricKey(size: .bits256)
+                let keyData = key.withUnsafeBytes { Data(Array($0)) }
+                KeychainHelper.storeData(data: keyData, forService: "symkey", account: self.id ?? "GateKeeper")
+                print("Generated and stored new key")
+            }
     }
     func retrieveSymmetricKey() -> SymmetricKey? {
-        
         if let keyData = KeychainHelper.retrieveData(forService: "symkey", account: self.id ?? "GateKeeper") {
             let key: SymmetricKey = SymmetricKey(data: keyData)
-            let keyData = key.withUnsafeBytes { Data(Array($0)) }
-            let hexString = keyData.map { String(format: "%02hhx", $0) }.joined()
-            let base64String = keyData.base64EncodedString()
-
             return key
         } else {
-            
             return nil
         }
     }
-    
-
-    
 }
