@@ -44,8 +44,7 @@ struct ProfileView: View {
                 Spacer()
                 Button(action: {
                     do {
-                        try Auth.auth().signOut()
-                        userViewModel.resetUserData()
+                        try userViewModel.resetUserData()
                     } catch {
                         print(error)
                     }

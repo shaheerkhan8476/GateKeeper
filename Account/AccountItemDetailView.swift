@@ -10,6 +10,7 @@ struct AccountItemDetailView: View {
     let account: Account
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var accountViewModel: AccountViewModel
     @State var name: String
     @State  var password: String
     @State var price: String
@@ -40,19 +41,21 @@ struct AccountItemDetailView: View {
             
             Button(action: {
                 Task {
-                    if let key = userViewModel.retrieveSymmetricKey() {
-                        
-                        if let encryptedPasswordData = userViewModel.encryptData(sensitive: password, key: key) {
+                    switch userViewModel.retrieveSymmetricKey() {
+                    case .success(let key):
+                        if let encryptedPasswordData = accountViewModel.encryptData(sensitive: password, key: key) {
                             account.name = name
                             account.password = encryptedPasswordData.base64EncodedString()
                             account.price = Double(price) ?? account.price
-                            await userViewModel.editAccount(account: account)
+                            await accountViewModel.editAccount(account: account)
                         } else {
                             print("Failed to encrypt password")
                         }
-                    } else {
-                        print("Failed to retrieve symmetric key")
+                    case .failure(let error):
+                    
+                        break
                     }
+                    
                     await MainActor.run {
                         dismiss()
                     }

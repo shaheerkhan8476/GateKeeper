@@ -95,7 +95,3 @@ struct LogInView: View {
         }
     }
     }
-
-#Preview {
-    LogInView()
-}

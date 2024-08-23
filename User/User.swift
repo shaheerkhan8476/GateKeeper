@@ -18,22 +18,18 @@ class User: Identifiable {
         self.email = email
         self.id = id
         self.accounts = accounts
-        
-        if retrieveSymmetricKey() != nil {
-                print("Retrieved existing key")
-            } else {
-                let key = SymmetricKey(size: .bits256)
-                let keyData = key.withUnsafeBytes { Data(Array($0)) }
-                KeychainHelper.storeData(data: keyData, forService: "symkey", account: self.id ?? "GateKeeper")
-                print("Generated and stored new key")
-            }
     }
-    func retrieveSymmetricKey() -> SymmetricKey? {
+    
+    func retrieveSymmetricKey() -> SymmetricKey {
         if let keyData = KeychainHelper.retrieveData(forService: "symkey", account: self.id ?? "GateKeeper") {
             let key: SymmetricKey = SymmetricKey(data: keyData)
             return key
         } else {
-            return nil
+            let key = SymmetricKey(size: .bits256)
+            let keyData = key.withUnsafeBytes { Data(Array($0)) }
+            let _ = KeychainHelper.storeData(data: keyData, forService: "symkey", account: self.id ?? "GateKeeper")
+            print("Generated and stored new key")
+            return key
         }
     }
 }

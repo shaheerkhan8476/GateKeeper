@@ -11,6 +11,7 @@ import FirebaseFirestore
 
 struct HomeView: View {
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var accountViewModel: AccountViewModel
     @State private var showSheet = false
     @State private var showUserSheet = false
     @State private var total: Double? = 0.0
@@ -18,7 +19,7 @@ struct HomeView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
     
-                Text("Accounts")
+                Text("Your Accounts")
                     .font(.system(size: 36, weight: .bold))
                     .foregroundStyle(
                         LinearGradient(
@@ -30,9 +31,7 @@ struct HomeView: View {
                     .padding(.horizontal)
                 AccountView()
             }
-            
             .toolbar {
-                
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
                         showUserSheet.toggle()
@@ -41,7 +40,7 @@ struct HomeView: View {
                     }
                     .sheet(isPresented: $showUserSheet) {
                         ProfileView()
-                            .presentationDetents([.fraction(0.25)])
+                            .presentationDetents([.fraction(0.40)])
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -54,7 +53,7 @@ struct HomeView: View {
                     }
                     .sheet(isPresented: $showSheet) {
                         AddAccountView(showAddAccountSheet: $showSheet)
-                            .presentationDetents([.fraction(0.33)])
+                            .presentationDetents([.fraction(0.40)])
                     }
                 }
                 
@@ -68,7 +67,16 @@ struct HomeView: View {
             .onAppear {
                 Task {
                     await userViewModel.fetchUserData()
+                    switch userViewModel.retrieveSymmetricKey() {
+                    case .success(let key):
+                        
+                        await accountViewModel.getAccountData(key: key)
                     
+                    case.failure(let error):
+                        print(error)
+                        break
+                    }
+                   
                 }
                 
             }

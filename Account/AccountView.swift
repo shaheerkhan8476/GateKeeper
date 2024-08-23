@@ -7,35 +7,43 @@
 import SwiftUI
 import Foundation
 import CryptoKit
-
 struct AccountView: View {
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var accountViewModel: AccountViewModel
     
     var body: some View {
+        let accounts: [Account] = accountViewModel.accountData
         VStack {
-            if let accounts = userViewModel.userData?.accounts {
-                
-                List {
-                    ForEach(accounts) { account in
-                        AccountItemView(account: account)
-                            .listRowSeparatorTint(.purple)
-                    }
-                    .onDelete { account in
-                        Task {
-                            await deleteAccounts(at: account, from: accounts)
-                            await userViewModel.fetchUserData()
+            List {  
+                ForEach(accounts) { account in
+                    AccountItemView(account: account)
+                        .listRowSeparatorTint(.purple)
+                }
+                .onDelete { account in
+                    Task {
+                        await deleteAccounts(at: account, from: accounts)
+                        switch userViewModel.retrieveSymmetricKey() {
+                        case .success(let key):
+                            await accountViewModel.getAccountData(key: key)
+                        
+                        case .failure(let error):
+                            print(error)
                         }
                     }
                 }
-                .listStyle(.inset)
-                .padding()
-            } else {
-                Text("Add an Account!")
             }
+            .listStyle(.inset)
+            .padding()
         }
         .onAppear {
             Task {
-                userViewModel.decryptPasswords()
+                switch userViewModel.retrieveSymmetricKey() {
+                case .success(let key):
+                    print("Received Key")
+                    await accountViewModel.getAccountData(key: key)
+                case .failure(let error):
+                    print("\(error)")
+                }
             }
         }
     }
@@ -43,7 +51,7 @@ struct AccountView: View {
     private func deleteAccounts(at offsets: IndexSet, from accounts: [Account]) async {
         for index in offsets {
             let account = accounts[index]
-            await userViewModel.deleteAccount(account: account)
+            await accountViewModel.deleteAccount(account: account)
         }
     }
 }

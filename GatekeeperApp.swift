@@ -30,12 +30,13 @@ struct GatekeeperApp: App {
   // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var userViewModel = UserViewModel()
-
+    @StateObject private var accountViewModel = AccountViewModel()
   var body: some Scene {
     WindowGroup {
       NavigationView {
         ContentView()
               .environmentObject(userViewModel)
+              .environmentObject(accountViewModel)
       }
     }
   }
