@@ -13,8 +13,6 @@ import CryptoKit
 @MainActor class AccountViewModel: ObservableObject {
     @Published var accountData : [Account] = []
     @Published var totalPrice: Double = 0
-    
-    
     let db = Firestore.firestore()
     func getAccountData(key: SymmetricKey) async {
             if let userId = Auth.auth().currentUser?.uid {
@@ -34,6 +32,7 @@ import CryptoKit
                     }
                     self.accountData = accountsArray
                     self.decryptPasswords(key: key)
+                    self.calculateTotalCost()
                 } catch {
                     print("Error retrieving accounts: \(error)")
                 }
@@ -114,6 +113,7 @@ import CryptoKit
                         total += account.price
                     }
                 }
+            
             totalPrice = total
         }
     
@@ -125,7 +125,6 @@ import CryptoKit
                 print("Failed to convert decrypted data to string.")
                 return nil
             }
-            print("Decrypted password: \(decryptedString)")
             return decryptedString
         } catch {
             print("Decryption failed: \(error)")

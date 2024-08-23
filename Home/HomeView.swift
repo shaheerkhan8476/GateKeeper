@@ -59,7 +59,7 @@ struct HomeView: View {
                 
                 ToolbarItem(placement: .bottomBar) {
                     HStack {
-                        Text("Total Monthly Cost: $\(userViewModel.totalPrice, specifier: "%.2f")").foregroundColor(.green)
+                        Text("Total Monthly Cost: $\(accountViewModel.totalPrice, specifier: "%.2f")").foregroundColor(.green)
                                                     .font(.subheadline.bold())
                     }
                 }

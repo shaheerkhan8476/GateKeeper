@@ -29,7 +29,6 @@ struct AddAccountView: View {
                     Task {
                         switch userViewModel.retrieveSymmetricKey() {
                         case .success(let key):
-                            // do the shit
                             // Encrypt the account password
                             if let encryptedPasswordData = accountViewModel.encryptData(sensitive: accountPassword, key: key) {
                                 // Create a new account with the encrypted password
@@ -45,8 +44,6 @@ struct AddAccountView: View {
                             // check what type of error this is and handle it accordingly
                             switch error {
                             case .notLoggedIn:
-                                // user is not logged in do smth
-                                // kick the user out, they shouldnt be here
                                 print("Failed to retrieve symmetric key")
                             }
                         }

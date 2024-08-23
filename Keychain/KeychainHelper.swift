@@ -30,7 +30,7 @@ class KeychainHelper {
            
         ]
         var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        let _ = SecItemCopyMatching(query as CFDictionary, &item)
         let data = item as? Data
         return data
         

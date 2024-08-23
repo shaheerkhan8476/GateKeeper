@@ -14,7 +14,6 @@ import CryptoKit
 
 @MainActor class UserViewModel: ObservableObject {
     @Published var userData: User? = nil
-    @Published var totalPrice: Double = 0.0
     enum UserViewModelError: Error {
         case notLoggedIn
     }
@@ -32,8 +31,8 @@ import CryptoKit
                                let accountPassword = accountDict["password"] as? String,
                                let accountID = accountDict["id"] as? String,
                                let accountPrice = accountDict["price"] as? Double{
-                                let account = Account(name: accountName, password: accountPassword, id: accountID, price: accountPrice)
-                                accounts.append(account)
+                                    let account = Account(name: accountName, password: accountPassword, id: accountID, price: accountPrice)
+                                    accounts.append(account)
                             }
                         }
                     }
@@ -58,7 +57,6 @@ import CryptoKit
         guard let user = userData else {
             return .failure(UserViewModelError.notLoggedIn)
         }
-        
         return .success(user.retrieveSymmetricKey())
     }
 }

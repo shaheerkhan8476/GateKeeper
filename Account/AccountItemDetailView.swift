@@ -51,8 +51,7 @@ struct AccountItemDetailView: View {
                         } else {
                             print("Failed to encrypt password")
                         }
-                    case .failure(let error):
-                    
+                    case .failure(_):
                         break
                     }
                     
