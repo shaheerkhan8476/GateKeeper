@@ -39,8 +39,8 @@ struct HomeView: View {
                         Label("User Profile", systemImage: "person.circle.fill")
                     }
                     .sheet(isPresented: $showUserSheet) {
-                        ProfileView()
-                            .presentationDetents([.fraction(0.40)])
+                        ProfileView(isPresented: $showUserSheet)
+                            .presentationDetents([.fraction(0.6)])
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

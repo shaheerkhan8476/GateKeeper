@@ -9,39 +9,80 @@ import SwiftUI
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
+import PhotosUI
+import FirebaseStorage
 
 struct ProfileView: View {
+    @Binding var isPresented: Bool 
     @EnvironmentObject var userViewModel: UserViewModel
+    @State var data: Data?
+    @State var selectedItem: [PhotosPickerItem] = []
+    let storageReference = Storage.storage().reference().child("\(UUID().uuidString)")
     var body: some View {
         if let userData = userViewModel.userData {
             VStack {
-                ZStack(alignment: .bottomTrailing){
-                            Image(systemName: "heart.circle.fill")
-                                 .resizable()
-                                 .frame(width:100, height: 100)
-                                 .clipShape(Circle())
-                            Image(systemName: "plus.circle")
-                                 .foregroundColor(.white)
-                                 .frame(width: 25, height: 25)
-                                 .background(Color.blue)
-                                 .clipShape(Circle())
-                               
-                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                            }
-                .padding()
                 Spacer()
+                    PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, selectionBehavior: .default, matching: .images, preferredItemEncoding: .automatic) {
+                        if let data = data, let image = UIImage(data: data) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .clipShape(Circle())
+                                .frame(width:100, height: 100)
+                        } else {
+                            Label("Select a picture", systemImage: "photo.on.rectangle.angled")
+                        }
+                    }.onChange(of: selectedItem) { newValue in
+                        guard let item = selectedItem.first else {
+                            return
+                        }
+                        item.loadTransferable(type: Data.self) { result in
+                            switch result {
+                            case .success(let data):
+                                if let data = data {
+                                    self.data = data
+                                }
+                            case .failure(let failure):
+                                print("Error: \(failure.localizedDescription)")
+                            }
+                        }
+                    }
+                
+                
+            
+                Spacer()
+
                 HStack{
                     Text("Name: ").bold()
                     Spacer()
                     Text(userData.name ?? "User Data").bold()
                 }.padding()
+                
                 Divider()
+                
                 HStack {
                     Text("Email: ").bold()
                     Spacer()
                     Text(userData.email ?? "No Email").bold()
                 }.padding()
+                
                 Spacer()
+                
+                Button("Save Profile") {
+                    storageReference.putData(data!, metadata: nil) { (metadata, error) in
+                        guard let metadata = metadata else {
+                            print("Picture upload failed \(error)")
+                            return }
+                    }
+                    isPresented = false
+                    
+                }
+                .disabled(data == nil)
+                .background(Color.blue)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+                .foregroundColor(Color.white).cornerRadius(4)
+                    
+                
                 Button(action: {
                     do {
                         try userViewModel.resetUserData()
@@ -53,14 +94,11 @@ struct ProfileView: View {
                 }).padding()
                     .background(Color.red)
                     .foregroundColor(.white)
-                    .cornerRadius(5)
-                    
+                    .cornerRadius(4)
+                
             }
             .padding()
         }
     }
 }
 
-#Preview {
-    ProfileView()
-}
