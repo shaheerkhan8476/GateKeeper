@@ -11,47 +11,45 @@ import FirebaseCore
 import FirebaseFirestore
 import PhotosUI
 import FirebaseStorage
-
 struct ProfileView: View {
-    @Binding var isPresented: Bool 
+    @Binding var isPresented: Bool
     @EnvironmentObject var userViewModel: UserViewModel
     @State var data: Data?
     @State var selectedItem: [PhotosPickerItem] = []
-    let storageReference = Storage.storage().reference().child("\(UUID().uuidString)")
+    let storageReference = Storage.storage().reference().child("profile_images/\(UUID().uuidString).jpg")
+    
     var body: some View {
         if let userData = userViewModel.userData {
             VStack {
                 Spacer()
-                    PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, selectionBehavior: .default, matching: .images, preferredItemEncoding: .automatic) {
-                        if let data = data, let image = UIImage(data: data) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .clipShape(Circle())
-                                .frame(width:100, height: 100)
-                        } else {
-                            Label("Select a picture", systemImage: "photo.on.rectangle.angled")
-                        }
-                    }.onChange(of: selectedItem) { newValue in
-                        guard let item = selectedItem.first else {
-                            return
-                        }
-                        item.loadTransferable(type: Data.self) { result in
-                            switch result {
-                            case .success(let data):
-                                if let data = data {
-                                    self.data = data
-                                }
-                            case .failure(let failure):
-                                print("Error: \(failure.localizedDescription)")
+                PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, selectionBehavior: .default, matching: .images, preferredItemEncoding: .automatic) {
+                    if let data = data, let image = UIImage(data: data) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .clipShape(Circle())
+                            .frame(width: 100, height: 100)
+                    } else {
+                        Label("Select a picture", systemImage: "photo.on.rectangle.angled")
+                    }
+                }.onChange(of: selectedItem) { newValue in
+                    guard let item = selectedItem.first else {
+                        return
+                    }
+                    item.loadTransferable(type: Data.self) { result in
+                        switch result {
+                        case .success(let data):
+                            if let data = data {
+                                self.data = data
                             }
+                        case .failure(let failure):
+                            print("Error: \(failure.localizedDescription)")
                         }
                     }
+                }
                 
-                
-            
                 Spacer()
-
-                HStack{
+                
+                HStack {
                     Text("Name: ").bold()
                     Spacer()
                     Text(userData.name ?? "User Data").bold()
@@ -68,20 +66,36 @@ struct ProfileView: View {
                 Spacer()
                 
                 Button("Save Profile") {
-                    storageReference.putData(data!, metadata: nil) { (metadata, error) in
-                        guard let metadata = metadata else {
-                            print("Picture upload failed \(error)")
-                            return }
-                    }
-                    isPresented = false
+                    guard let imageData = data else { return }
                     
+                    storageReference.putData(imageData, metadata: nil) { metadata, error in
+                        if let error = error {
+                            print("Picture upload failed: \(error.localizedDescription)")
+                            return
+                        }
+                        
+                        storageReference.downloadURL { url, error in
+                            if let error = error {
+                                print("Error retrieving download URL: \(error.localizedDescription)")
+                                return
+                            }
+                            
+                            if let url = url {
+                                print("Success with URL: \(url.absoluteString)")
+                                Task {
+                                    await userViewModel.addProfilePicture(url: url.absoluteString)
+                                }
+                                isPresented = false
+                            }
+                        }
+                    }
                 }
                 .disabled(data == nil)
                 .background(Color.blue)
                 .buttonStyle(.borderedProminent)
                 .controlSize(.regular)
-                .foregroundColor(Color.white).cornerRadius(4)
-                    
+                .foregroundColor(Color.white)
+                .cornerRadius(4)
                 
                 Button(action: {
                     do {
@@ -92,13 +106,11 @@ struct ProfileView: View {
                 }, label: {
                     Text("Log Out")
                 }).padding()
-                    .background(Color.red)
-                    .foregroundColor(.white)
-                    .cornerRadius(4)
-                
+                .background(Color.red)
+                .foregroundColor(.white)
+                .cornerRadius(4)
             }
             .padding()
         }
     }
 }
-

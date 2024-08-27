@@ -11,13 +11,13 @@ class User: Identifiable {
     var name: String?
     var email: String?
     var id: String?
-    var accounts: [Account]? = []
+    var profileImageUrl: String?
     
-    init( name: String? = nil, email: String? = nil, id: String? = nil, accounts: [Account]? = []) {
+    init( name: String? = nil, email: String? = nil, id: String? = nil, profileImageUrl: String? = nil) {
         self.name = name
         self.email = email
         self.id = id
-        self.accounts = accounts
+        self.profileImageUrl = profileImageUrl
     }
     
     func retrieveSymmetricKey() -> SymmetricKey {

@@ -24,19 +24,9 @@ import CryptoKit
             do {
                 let document = try await docRef.getDocument()
                 if let data = document.data(), document.exists {
-                    var accounts: [Account] = []
-                    if let accountsData = data["accounts"] as? [[String: Any]] {
-                        for accountDict in accountsData {
-                            if let accountName = accountDict["name"] as? String,
-                               let accountPassword = accountDict["password"] as? String,
-                               let accountID = accountDict["id"] as? String,
-                               let accountPrice = accountDict["price"] as? Double{
-                                    let account = Account(name: accountName, password: accountPassword, id: accountID, price: accountPrice)
-                                    accounts.append(account)
-                            }
-                        }
-                    }
-                    let user = User(name: data["name"] as? String, email: data["email"] as? String, id: userId, accounts: accounts)
+                    
+                    
+                    let user = User(name: data["name"] as? String, email: data["email"] as? String, id: userId)
                     self.userData = user
                 } else {
                     print("Document does not exist")
@@ -58,5 +48,26 @@ import CryptoKit
             return .failure(UserViewModelError.notLoggedIn)
         }
         return .success(user.retrieveSymmetricKey())
+    }
+    func addProfilePicture(url: String? ) async {
+        if let userId = Auth.auth().currentUser?.uid {
+            let docRef = db.collection("users").document(userId)
+            do {
+                let document = try await docRef.getDocument()
+                if let data = document.data(), document.exists {
+                    try await docRef.updateData(
+                        [   "name" : self.userData?.name,
+                            "email" : self.userData?.email,
+                            "profileImageUrl" : url,
+                            "id": userId
+                        ]
+                    )
+                    self.userData?.profileImageUrl = url
+                }
+            }
+            catch {
+                print("Error uploading profileURL \(error)")
+            }
+        }
     }
 }

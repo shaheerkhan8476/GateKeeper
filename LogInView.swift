@@ -84,7 +84,6 @@ struct LogInView: View {
                             "name": name,
                             "email": email,
                             "id": newUser.id ?? "",
-                            "accounts": newUser.accounts ?? []
                         ])
                         print("Document successfully written!")
                     } catch {
