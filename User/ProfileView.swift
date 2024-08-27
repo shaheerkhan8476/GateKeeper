@@ -16,7 +16,7 @@ struct ProfileView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     @State var data: Data?
     @State var selectedItem: [PhotosPickerItem] = []
-    let storageReference = Storage.storage().reference().child("profile_images/\(UUID().uuidString).jpg")
+   
     
     var body: some View {
         if let userData = userViewModel.userData {
@@ -46,9 +46,7 @@ struct ProfileView: View {
                         }
                     }
                 }
-                
                 Spacer()
-                
                 HStack {
                     Text("Name: ").bold()
                     Spacer()
@@ -67,28 +65,8 @@ struct ProfileView: View {
                 
                 Button("Save Profile") {
                     guard let imageData = data else { return }
-                    
-                    storageReference.putData(imageData, metadata: nil) { metadata, error in
-                        if let error = error {
-                            print("Picture upload failed: \(error.localizedDescription)")
-                            return
-                        }
-                        
-                        storageReference.downloadURL { url, error in
-                            if let error = error {
-                                print("Error retrieving download URL: \(error.localizedDescription)")
-                                return
-                            }
-                            
-                            if let url = url {
-                                print("Success with URL: \(url.absoluteString)")
-                                Task {
-                                    await userViewModel.addProfilePicture(url: url.absoluteString)
-                                }
-                                isPresented = false
-                            }
-                        }
-                    }
+                    userViewModel.addToStorage(imageData: imageData)
+                    isPresented = false
                 }
                 .disabled(data == nil)
                 .background(Color.blue)
