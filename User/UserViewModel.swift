@@ -12,6 +12,7 @@ import FirebaseFirestore
 import CryptoKit
 import PhotosUI
 import FirebaseStorage
+import SwiftUI
 
 @MainActor class UserViewModel: ObservableObject {
     @Published var userData: User? = nil
@@ -25,9 +26,7 @@ import FirebaseStorage
             do {
                 let document = try await docRef.getDocument()
                 if let data = document.data(), document.exists {
-                    
-                    
-                    let user = User(name: data["name"] as? String, email: data["email"] as? String, id: userId)
+                    let user = User(name: data["name"] as? String, email: data["email"] as? String, id: userId, profileImageUrl: data["profileImageUrl"] as? String)
                     self.userData = user
                 } else {
                     print("Document does not exist")
@@ -65,11 +64,14 @@ import FirebaseStorage
                     )
                     self.userData?.profileImageUrl = url
                 }
+                await self.fetchUserData()
             }
             catch {
                 print("Error uploading profileURL \(error)")
             }
         }
+        
+        
     }
     
     func addToStorage(imageData: Data) {
@@ -79,13 +81,11 @@ import FirebaseStorage
                 print("Picture upload failed: \(error.localizedDescription)")
                 return
             }
-            
             storageReference.downloadURL { url, error in
                 if let error = error {
                     print("Error retrieving download URL: \(error.localizedDescription)")
                     return
                 }
-                
                 if let url = url {
                     print("Success with URL: \(url.absoluteString)")
                     Task {
@@ -95,4 +95,6 @@ import FirebaseStorage
             }
         }
     }
+    
+    
 }

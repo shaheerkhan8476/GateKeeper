@@ -11,17 +11,39 @@ import FirebaseCore
 import FirebaseFirestore
 import PhotosUI
 import FirebaseStorage
+
 struct ProfileView: View {
     @Binding var isPresented: Bool
     @EnvironmentObject var userViewModel: UserViewModel
     @State var data: Data?
     @State var selectedItem: [PhotosPickerItem] = []
-   
-    
+    @State var dirty: Bool = false
     var body: some View {
         if let userData = userViewModel.userData {
             VStack {
                 Spacer()
+                
+                if dirty == false {
+                    AsyncImage(url: URL(string: userData.profileImageUrl ?? ""), scale: 5) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .frame(width: 100, height: 100)
+                                .clipShape(Circle())
+                        case .failure:
+                            Image(systemName: "photo")
+                                .font(.largeTitle)
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                    .frame(width: 100, height: 100)
+                    
+                }
+                
                 PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, selectionBehavior: .default, matching: .images, preferredItemEncoding: .automatic) {
                     if let data = data, let image = UIImage(data: data) {
                         Image(uiImage: image)
@@ -31,10 +53,11 @@ struct ProfileView: View {
                     } else {
                         Label("Select a picture", systemImage: "photo.on.rectangle.angled")
                     }
-                }.onChange(of: selectedItem) { newValue in
-                    guard let item = selectedItem.first else {
-                        return
-                    }
+                }
+                
+                .onChange(of: selectedItem) { _ in
+                    dirty = true
+                    guard let item = selectedItem.first else { return }
                     item.loadTransferable(type: Data.self) { result in
                         switch result {
                         case .success(let data):
@@ -46,12 +69,15 @@ struct ProfileView: View {
                         }
                     }
                 }
+                
                 Spacer()
+                
                 HStack {
                     Text("Name: ").bold()
                     Spacer()
                     Text(userData.name ?? "User Data").bold()
-                }.padding()
+                }
+                .padding()
                 
                 Divider()
                 
@@ -59,7 +85,8 @@ struct ProfileView: View {
                     Text("Email: ").bold()
                     Spacer()
                     Text(userData.email ?? "No Email").bold()
-                }.padding()
+                }
+                .padding()
                 
                 Spacer()
                 
@@ -67,11 +94,12 @@ struct ProfileView: View {
                     guard let imageData = data else { return }
                     userViewModel.addToStorage(imageData: imageData)
                     isPresented = false
+                    dirty = false
                 }
                 .disabled(data == nil)
-                .background(Color.blue)
                 .buttonStyle(.borderedProminent)
                 .controlSize(.regular)
+                .background(Color.blue)
                 .foregroundColor(Color.white)
                 .cornerRadius(4)
                 
@@ -83,12 +111,22 @@ struct ProfileView: View {
                     }
                 }, label: {
                     Text("Log Out")
-                }).padding()
+                })
+                .padding()
                 .background(Color.red)
                 .foregroundColor(.white)
                 .cornerRadius(4)
+                
+                Spacer()
+            }.padding()
+            
+            .onAppear {
+                Task {
+                    await userViewModel.fetchUserData()
+                    
+                }
             }
-            .padding()
+            
         }
     }
 }
