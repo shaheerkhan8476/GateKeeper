@@ -18,7 +18,6 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
-    
                 Text("Your Accounts")
                     .font(.system(size: 36, weight: .bold))
                     .foregroundStyle(
@@ -40,7 +39,7 @@ struct HomeView: View {
                     }
                     .sheet(isPresented: $showUserSheet) {
                         ProfileView(isPresented: $showUserSheet)
-                            .presentationDetents([.fraction(0.6)])
+                            .presentationDetents([.fraction(1)])
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

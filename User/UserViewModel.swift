@@ -122,7 +122,5 @@ import SwiftUI
         }
         
     }
-    func addFriend(friendID: String) {
-        
-    }
+    
 }
