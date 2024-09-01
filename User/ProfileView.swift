@@ -21,7 +21,9 @@ struct ProfileView: View {
     var body: some View {
         if let userData = userViewModel.userData {
             NavigationStack{
+                
                 VStack {
+                    
                     Spacer()
                     
                     if dirty == false {
@@ -29,6 +31,7 @@ struct ProfileView: View {
                             switch phase {
                             case .empty:
                                 ProgressView()
+                                    .frame(width: 200, height: 200)
                             case .success(let image):
                                 image
                                     .resizable()
@@ -149,7 +152,21 @@ struct ProfileView: View {
                         await userViewModel.fetchUserData()
                     }
                 }
-                
+                .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                Text("Profile")
+                                    .font(.system(size: 30, weight: .bold))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [.red, .blue, .purple],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .padding(.horizontal)
+                            }
+                        }
+                .navigationBarTitleDisplayMode(.inline)
             }
         }
     }

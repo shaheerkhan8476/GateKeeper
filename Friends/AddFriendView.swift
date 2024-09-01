@@ -16,9 +16,15 @@ struct AddFriendView: View {
             TextField("Enter Friend's Email", text: $friendEmail)
             Divider()
             Button {
-                showAddSheet.toggle()
+               
                 Task {
-                    await friendsViewModel.addFriend()
+                    do {
+                        try await friendsViewModel.addFriend(friend: friendEmail)
+                        showAddSheet.toggle()
+                    } catch {
+                        print(error)
+                    }
+                    
                 }
             } label: {
                 Text("Add Friend")

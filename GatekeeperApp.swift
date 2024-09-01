@@ -31,12 +31,14 @@ struct GatekeeperApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var userViewModel = UserViewModel()
     @StateObject private var accountViewModel = AccountViewModel()
+    @StateObject private var friendsViewModel = FriendsViewModel()
   var body: some Scene {
     WindowGroup {
       NavigationView {
         ContentView()
               .environmentObject(userViewModel)
               .environmentObject(accountViewModel)
+              .environmentObject(friendsViewModel)
       }
     }
   }
