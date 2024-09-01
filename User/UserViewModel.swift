@@ -70,31 +70,59 @@ import SwiftUI
                 print("Error uploading profileURL \(error)")
             }
         }
-        
-        
+  
     }
     
-    func addToStorage(imageData: Data) {
-        let storageReference = Storage.storage().reference().child("profile_images/\(UUID().uuidString).jpg")
-        storageReference.putData(imageData, metadata: nil) { metadata, error in
-            if let error = error {
-                print("Picture upload failed: \(error.localizedDescription)")
-                return
+    func uploadProfilePicture(imageData: Data) async {
+        let storageReference = Storage.storage().reference().child("profile_images/\(userData?.id).jpg")
+        if ((userData?.profileImageUrl) != nil) {
+            do {
+              try await storageReference.delete()
+            } catch {
+              print("Error deleting profile picture \(error)")
             }
-            storageReference.downloadURL { url, error in
+            
+            storageReference.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
-                    print("Error retrieving download URL: \(error.localizedDescription)")
+                    print("Picture upload failed: \(error.localizedDescription)")
                     return
                 }
-                if let url = url {
-                    print("Success with URL: \(url.absoluteString)")
-                    Task {
-                        await self.addProfilePicture(url: url.absoluteString)
+                storageReference.downloadURL { url, error in
+                    if let error = error {
+                        print("Error retrieving download URL: \(error.localizedDescription)")
+                        return
+                    }
+                    if let url = url {
+                        print("Success with URL: \(url.absoluteString)")
+                        Task {
+                            await self.addProfilePicture(url: url.absoluteString)
+                        }
+                    }
+                }
+            }
+        } else {
+            storageReference.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("Picture upload failed: \(error.localizedDescription)")
+                    return
+                }
+                storageReference.downloadURL { url, error in
+                    if let error = error {
+                        print("Error retrieving download URL: \(error.localizedDescription)")
+                        return
+                    }
+                    if let url = url {
+                        print("Success with URL: \(url.absoluteString)")
+                        Task {
+                            await self.addProfilePicture(url: url.absoluteString)
+                        }
                     }
                 }
             }
         }
+        
     }
-    
-    
+    func addFriend(friendID: String) {
+        
+    }
 }

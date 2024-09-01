@@ -27,7 +27,8 @@ struct ProfileView: View {
                     AsyncImage(url: URL(string: userData.profileImageUrl ?? ""), scale: 5) { phase in
                         switch phase {
                         case .empty:
-                            ProgressView()
+                            Image(systemName: "photo")
+                                .font(.largeTitle)
                         case .success(let image):
                             image
                                 .resizable()
@@ -89,37 +90,46 @@ struct ProfileView: View {
                 .padding()
                 
                 Spacer()
-                
-                Button("Save Profile") {
-                    guard let imageData = data else { return }
-                    userViewModel.addToStorage(imageData: imageData)
-                    isPresented = false
-                    dirty = false
-                }
-                .disabled(data == nil)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.regular)
-                .background(Color.blue)
-                .foregroundColor(Color.white)
-                .cornerRadius(4)
-                
-                Button(action: {
-                    do {
-                        try userViewModel.resetUserData()
-                    } catch {
-                        print(error)
+                HStack {
+                    Spacer()
+                    
+                    Button(action: {
+                        do {
+                            try userViewModel.resetUserData()
+                        } catch {
+                            print(error)
+                        }
+                    }, label: {
+                        Text("Log Out")
+                    })
+                    .padding()
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .cornerRadius(4)
+                    .controlSize(.regular)
+                    
+                    Spacer()
+                    
+                    Button("Save Profile") {
+                        guard let imageData = data else { return }
+                        Task {
+                            await userViewModel.uploadProfilePicture(imageData: imageData)
+                        }
+                        isPresented = false
+                        dirty = false
                     }
-                }, label: {
-                    Text("Log Out")
-                })
-                .padding()
-                .background(Color.red)
-                .foregroundColor(.white)
-                .cornerRadius(4)
-                
-                Spacer()
-            }.padding()
-            
+                    
+                    .disabled(data == nil)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(4)
+                    .controlSize(.regular)
+                    
+                    Spacer()
+                    
+                }.padding()
+            }
             .onAppear {
                 Task {
                     await userViewModel.fetchUserData()
