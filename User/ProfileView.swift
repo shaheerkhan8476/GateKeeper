@@ -21,11 +21,8 @@ struct ProfileView: View {
     var body: some View {
         if let userData = userViewModel.userData {
             NavigationStack{
-                
                 VStack {
-                    
                     Spacer()
-                    
                     if dirty == false {
                         AsyncImage(url: URL(string: userData.profileImageUrl ?? "")) { phase in
                             switch phase {

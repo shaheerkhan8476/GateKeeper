@@ -12,6 +12,7 @@ struct FriendsView: View {
     @EnvironmentObject var friendsViewModel: FriendsViewModel
     @State var showAddSheet: Bool = false
     var body: some View {
+        let friends = friendsViewModel.friendData
         NavigationStack{
             VStack(alignment: .leading, spacing: 0) {
                 Text("Friends List")
@@ -24,24 +25,35 @@ struct FriendsView: View {
                         )
                     )
                     .padding(.horizontal)
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        showAddSheet.toggle()
-                        
-                    }) {
-                        Label("Add Friend", systemImage: "plus.app.fill")
-                            .padding()
-                            .cornerRadius(5)
+                List {
+                    ForEach(friendsViewModel.friendData, id: \.email) { friend in
+//                        FriendItemView(friend: friend)
+                        HStack {
+                            Text(friend.name)
+                            Text(friend.email)
+                        }
+                            .listRowSeparatorTint(.purple)
                     }
-                    .sheet(isPresented: $showAddSheet) {
-                        AddFriendView(showAddSheet: $showAddSheet)
-                            .presentationDetents([.fraction(0.40)])
+                    
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            showAddSheet.toggle()
+                            
+                        }) {
+                            Label("Add Friend", systemImage: "plus.app.fill")
+                                .padding()
+                                .cornerRadius(5)
+                        }
+                        .sheet(isPresented: $showAddSheet) {
+                            AddFriendView(showAddSheet: $showAddSheet)
+                                .presentationDetents([.fraction(0.40)])
+                        }
                     }
                 }
             }
         }
+        
     }
-    
 }

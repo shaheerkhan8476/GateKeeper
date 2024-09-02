@@ -16,8 +16,8 @@ import FirebaseFirestore
         case cannotAddSelf
         case friendAlreadyExists
     }
-    
-    @Published var friendData: [Any] = []
+        
+    @Published var friendData: [Friend] = []
     let db = Firestore.firestore()
     
     func addFriend(friend: String) async throws {
@@ -43,10 +43,7 @@ import FirebaseFirestore
                     if let email = data["email"] as? String,
                        let name = data["name"] as? String {
                         
-                        let friendData: [String: Any] = [
-                            "email": email,
-                            "name": name
-                        ]
+                        let newFriend: Friend = Friend(email: email, name: name)
                         
                         if let currentUserSnapshot = try? await docRef.getDocument(),
                            let currentUserData = currentUserSnapshot.data(),
@@ -58,16 +55,17 @@ import FirebaseFirestore
                                 }
                                 return false
                             }
-                            
                             if friendAlreadyExists {
                                 throw FriendsViewModelError.friendAlreadyExists
                             }
                         }
+                        let newFriendData: [String: Any] = [
+                            "email" : email,
+                            "name" : name
+                        ]
+                        try await docRef.updateData(newFriendData)
                         
-                        try await docRef.updateData([
-                            "friends": FieldValue.arrayUnion([friendData])
-                        ])
-                        self.friendData.append(friendData)
+                        self.friendData.append(newFriend)
                         
                     } else {
                         print("Error: Name or email is missing in the document")
