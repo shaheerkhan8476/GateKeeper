@@ -53,7 +53,12 @@ struct FriendsView: View {
                     }
                 }
             }
+            
         }
-        
+        .onAppear() {
+            Task {
+                try await friendsViewModel.getFriends()
+            }
+        }
     }
 }

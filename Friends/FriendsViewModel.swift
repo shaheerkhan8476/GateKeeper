@@ -11,7 +11,7 @@ import FirebaseCore
 import FirebaseFirestore
 
 @MainActor class FriendsViewModel: ObservableObject {
-    enum FriendsViewModelError: Error {
+    public enum FriendsViewModelError: Error {
         case userNotFound
         case cannotAddSelf
         case friendAlreadyExists
@@ -20,62 +20,80 @@ import FirebaseFirestore
     @Published var friendData: [Friend] = []
     let db = Firestore.firestore()
     
+    func getFriends() async throws {
+            if let userId = Auth.auth().currentUser?.uid {
+                let docRef = db.collection("users").document(userId)
+                var friendArray: [Friend] = []
+                
+                let data = try await docRef.getDocument()
+                if data.exists {
+                    if let friendsRead = data["friends"] as? [[String: Any]] {
+                        for friend in friendsRead {
+                            if let name = friend["name"] as? String,
+                               let email = friend["email"] as? String {
+                                let newFriend = Friend(email: email, name: name)
+                                friendArray.append(newFriend)
+                            }
+                        }
+                    }
+                    self.friendData = friendArray
+                }
+            }
+        }
     func addFriend(friend: String) async throws {
         if let userId = Auth.auth().currentUser?.uid {
-            
-            if friend == Auth.auth().currentUser?.email {
+            if friend.lowercased() == Auth.auth().currentUser?.email?.lowercased() {
                 throw FriendsViewModelError.cannotAddSelf
             }
             
             let collectionRef = db.collection("users")
             let docRef = db.collection("users").document(userId)
             
-            do {
-                let querySnapshot = try await collectionRef.whereField("email", isEqualTo: friend).getDocuments()
+            
+            let querySnapshot = try await collectionRef.whereField("email", isEqualTo: friend).getDocuments()
+            if querySnapshot.documents.isEmpty {
+                print("Hello")
+                throw FriendsViewModelError.userNotFound
+            }
+            
+            for document in querySnapshot.documents {
+                let data = document.data()
                 
-                if querySnapshot.documents.isEmpty {
-                    throw FriendsViewModelError.userNotFound
-                }
-                
-                for document in querySnapshot.documents {
-                    let data = document.data()
+                if let email = data["email"] as? String,
+                   let name = data["name"] as? String {
                     
-                    if let email = data["email"] as? String,
-                       let name = data["name"] as? String {
+                    let newFriend: Friend = Friend(email: email, name: name)
+                    
+                    if let currentUserSnapshot = try? await docRef.getDocument(),
+                       let currentUserData = currentUserSnapshot.data(),
+                       let currentFriends = currentUserData["friends"] as? [[String: Any]] {
                         
-                        let newFriend: Friend = Friend(email: email, name: name)
-                        
-                        if let currentUserSnapshot = try? await docRef.getDocument(),
-                           let currentUserData = currentUserSnapshot.data(),
-                           let currentFriends = currentUserData["friends"] as? [[String: Any]] {
-                            
-                            let friendAlreadyExists = currentFriends.contains { friend in
-                                if let friendEmail = friend["email"] as? String {
-                                    return friendEmail == email
-                                }
-                                return false
+                        let friendAlreadyExists = currentFriends.contains { friend in
+                            if let friendEmail = friend["email"] as? String {
+                                return friendEmail == email
                             }
-                            if friendAlreadyExists {
-                                throw FriendsViewModelError.friendAlreadyExists
-                            }
+                            return false
                         }
-                        let newFriendData: [String: Any] = [
-                            "email" : email,
-                            "name" : name
-                        ]
-                        try await docRef.updateData(newFriendData)
-                        
-                        self.friendData.append(newFriend)
-                        
-                    } else {
-                        print("Error: Name or email is missing in the document")
+                        if friendAlreadyExists {
+                            throw FriendsViewModelError.friendAlreadyExists
+                        }
                     }
+                    let newFriendData: [String: Any] = [
+                        "email" : email,
+                        "name" : name
+                    ]
+                    try await docRef.updateData([
+                                "friends": FieldValue.arrayUnion([newFriendData])
+                            ])
+                    
+                    self.friendData.append(newFriend)
+                    
+                } else {
+                    print("Error: Name or email is missing in the document")
                 }
-            } catch {
-                print("An unexpected error occurred: \(error)")
             }
         } else {
-            throw FriendsViewModelError.userNotFound
+            print("Unknown Error occured with adding Friend ")
         }
     }
 }
