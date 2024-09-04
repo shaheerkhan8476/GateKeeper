@@ -12,6 +12,7 @@ struct FriendsView: View {
     @EnvironmentObject var friendsViewModel: FriendsViewModel
     @State var showAddSheet: Bool = false
     var body: some View {
+        
         let friends = friendsViewModel.friendData
         NavigationStack{
             VStack(alignment: .leading, spacing: 0) {
@@ -27,15 +28,13 @@ struct FriendsView: View {
                     .padding(.horizontal)
                 List {
                     ForEach(friendsViewModel.friendData, id: \.email) { friend in
-//                        FriendItemView(friend: friend)
-                        HStack {
-                            Text(friend.name)
-                            Text(friend.email)
-                        }
+                        FriendItemView(friend: friend)
                             .listRowSeparatorTint(.purple)
                     }
                     
                 }
+                .listStyle(.inset)
+                .padding()
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
@@ -45,6 +44,7 @@ struct FriendsView: View {
                             Label("Add Friend", systemImage: "plus.app.fill")
                                 .padding()
                                 .cornerRadius(5)
+                                .tint(.purple)
                         }
                         .sheet(isPresented: $showAddSheet) {
                             AddFriendView(showAddSheet: $showAddSheet)
@@ -55,6 +55,7 @@ struct FriendsView: View {
             }
             
         }
+        
         .onAppear() {
             Task {
                 try await friendsViewModel.getFriends()

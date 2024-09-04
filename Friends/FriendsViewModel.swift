@@ -16,84 +16,94 @@ import FirebaseFirestore
         case cannotAddSelf
         case friendAlreadyExists
     }
-        
+    
     @Published var friendData: [Friend] = []
     let db = Firestore.firestore()
     
     func getFriends() async throws {
-            if let userId = Auth.auth().currentUser?.uid {
-                let docRef = db.collection("users").document(userId)
-                var friendArray: [Friend] = []
-                
-                let data = try await docRef.getDocument()
-                if data.exists {
-                    if let friendsRead = data["friends"] as? [[String: Any]] {
-                        for friend in friendsRead {
-                            if let name = friend["name"] as? String,
-                               let email = friend["email"] as? String {
-                                let newFriend = Friend(email: email, name: name)
-                                friendArray.append(newFriend)
-                            }
+        if let userId = Auth.auth().currentUser?.uid {
+            let docRef = db.collection("users").document(userId)
+            var friendArray: [Friend] = []
+            
+            let data = try await docRef.getDocument()
+            if data.exists {
+                if let friendsRead = data["friends"] as? [[String: Any]] {
+                    for friend in friendsRead {
+                        if let name = friend["name"] as? String,
+                           let email = friend["email"] as? String {
+                            let newFriend = Friend(email: email, name: name)
+                            friendArray.append(newFriend)
                         }
                     }
-                    self.friendData = friendArray
                 }
+                self.friendData = friendArray
             }
         }
+    }
     func addFriend(friend: String) async throws {
         if let userId = Auth.auth().currentUser?.uid {
             if friend.lowercased() == Auth.auth().currentUser?.email?.lowercased() {
                 throw FriendsViewModelError.cannotAddSelf
             }
-            
             let collectionRef = db.collection("users")
             let docRef = db.collection("users").document(userId)
             
-            
-            let querySnapshot = try await collectionRef.whereField("email", isEqualTo: friend).getDocuments()
-            if querySnapshot.documents.isEmpty {
-                print("Hello")
-                throw FriendsViewModelError.userNotFound
-            }
-            
-            for document in querySnapshot.documents {
-                let data = document.data()
-                
-                if let email = data["email"] as? String,
-                   let name = data["name"] as? String {
+            let document = try await docRef.getDocument()
+            if document.exists {
+                if let currentUserData = document.data() {
+                    let querySnapshot = try await collectionRef.whereField("email", isEqualTo: friend).getDocuments()
                     
-                    let newFriend: Friend = Friend(email: email, name: name)
-                    
-                    if let currentUserSnapshot = try? await docRef.getDocument(),
-                       let currentUserData = currentUserSnapshot.data(),
-                       let currentFriends = currentUserData["friends"] as? [[String: Any]] {
-                        
-                        let friendAlreadyExists = currentFriends.contains { friend in
-                            if let friendEmail = friend["email"] as? String {
-                                return friendEmail == email
-                            }
-                            return false
-                        }
-                        if friendAlreadyExists {
-                            throw FriendsViewModelError.friendAlreadyExists
-                        }
+                    if querySnapshot.documents.isEmpty {
+                        throw FriendsViewModelError.userNotFound
                     }
-                    let newFriendData: [String: Any] = [
-                        "email" : email,
-                        "name" : name
-                    ]
-                    try await docRef.updateData([
+                    for document in querySnapshot.documents {
+                        let data = document.data()
+                        if let email = data["email"] as? String,
+                           let name = data["name"] as? String,
+                           let friendID = data["id"] as? String {
+                            let newFriend: Friend = Friend(email: email, name: name)
+                            if let currentUserSnapshot = try? await docRef.getDocument(),
+                               let currentUserData = currentUserSnapshot.data(),
+                               let currentFriends = currentUserData["friends"] as? [[String: Any]] {
+                                
+                                let friendAlreadyExists = currentFriends.contains { friend in
+                                    if let friendEmail = friend["email"] as? String {
+                                        return friendEmail == email
+                                    }
+                                    return false
+                                }
+                                if friendAlreadyExists {
+                                    throw FriendsViewModelError.friendAlreadyExists
+                                }
+                            }
+                            let newFriendData: [String: Any] = [
+                                "email" : email,
+                                "name" : name
+                            ]
+                            try await docRef.updateData([
                                 "friends": FieldValue.arrayUnion([newFriendData])
                             ])
-                    
-                    self.friendData.append(newFriend)
-                    
+                            
+                            let friendDocRef = db.collection("users").document(friendID)
+                            
+                       let currentUserData: [String: Any] = [
+                            "email" : data["email"],
+                            "name" : data["name"]
+                        ]
+                            
+                            try await friendDocRef.updateData([
+                                "friends": FieldValue.arrayUnion([currentUserData])
+                            ])
+                            
+                            self.friendData.append(newFriend)
+                        } else {
+                            print("Error: Name or email is missing in the document")
+                        }
+                    }
                 } else {
-                    print("Error: Name or email is missing in the document")
+                    print("Unknown Error occured with adding Friend ")
                 }
             }
-        } else {
-            print("Unknown Error occured with adding Friend ")
         }
     }
 }

@@ -58,8 +58,9 @@ struct HomeView: View {
                 
                 ToolbarItem(placement: .bottomBar) {
                     HStack {
-                        Text("Total Monthly Cost: $\(accountViewModel.totalPrice, specifier: "%.2f")").foregroundColor(.green)
-                                                    .font(.subheadline.bold())
+                        Text("Total Monthly Cost: $\(accountViewModel.totalPrice, specifier: "%.2f")")
+                            .foregroundColor(.green)
+                            .font(.subheadline.bold())
                     }
                 }
             }
@@ -68,17 +69,14 @@ struct HomeView: View {
                     await userViewModel.fetchUserData()
                     switch userViewModel.retrieveSymmetricKey() {
                     case .success(let key):
-                        
                         await accountViewModel.getAccountData(key: key)
-                    
                     case.failure(let error):
                         print(error)
                         break
                     }
-                   
                 }
-                
             }
         }
     }
 }
+

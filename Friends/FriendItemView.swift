@@ -9,9 +9,14 @@ import SwiftUI
 
 
 struct FriendItemView: View {
+    @EnvironmentObject var friendsViewModel: FriendsViewModel
     let friend: Friend
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationLink(destination: FriendItemDetailView(friend: friend)) {
+            HStack {
+                Text(friend.name)
+            }
+        }
     }
 }
 

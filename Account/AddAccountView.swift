@@ -31,17 +31,16 @@ struct AddAccountView: View {
                         case .success(let key):
                             // Encrypt the account password
                             if let encryptedPasswordData = accountViewModel.encryptData(sensitive: accountPassword, key: key) {
-                                // Create a new account with the encrypted password
+                                
                                 let encryptedPasswordString = encryptedPasswordData.base64EncodedString()
                                 let newAccount = Account(name: accountName, password: encryptedPasswordString, price: Double(accountPrice) ?? 0.0)
-                                // Add the account
+                               
                                 await accountViewModel.addAccount(account: newAccount)
                                 await accountViewModel.getAccountData(key: key)
                             } else {
                                 print("Failed to encrypt password")
                             }
                         case .failure(let error):
-                            // check what type of error this is and handle it accordingly
                             switch error {
                             case .notLoggedIn:
                                 print("Failed to retrieve symmetric key")
@@ -55,6 +54,7 @@ struct AddAccountView: View {
             })
             .buttonStyle(.borderedProminent)
             .padding()
+            
         }
         .padding()
     }
