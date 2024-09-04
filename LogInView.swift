@@ -15,6 +15,7 @@ struct LogInView: View {
     @State private var name: String = ""
     let db = Firestore.firestore()
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var accountViewModel: AccountViewModel
     var body: some View {
         VStack{
             Spacer()
@@ -64,6 +65,7 @@ struct LogInView: View {
                 loggedIn.toggle()
                 Task {
                     loggedIn = true
+                    accountViewModel.accountData = []
                     await userViewModel.fetchUserData()
                 }
             }

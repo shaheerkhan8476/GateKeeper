@@ -15,6 +15,7 @@ import FirebaseStorage
 struct ProfileView: View {
     @Binding var isPresented: Bool
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var accountViewModel: AccountViewModel
     @State var data: Data?
     @State var selectedItem: [PhotosPickerItem] = []
     @State var dirty: Bool = false
@@ -110,6 +111,7 @@ struct ProfileView: View {
                         Button(action: {
                             do {
                                 try userViewModel.resetUserData()
+                                accountViewModel.accountData = []
                             } catch {
                                 print(error)
                             }

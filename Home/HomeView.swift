@@ -14,7 +14,8 @@ struct HomeView: View {
     @EnvironmentObject var accountViewModel: AccountViewModel
     @State private var showSheet = false
     @State private var showUserSheet = false
-    @State private var accountsEmpty: Bool = false;
+    @State private var accountsEmpty = false
+    @State private var loaded = false
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -29,22 +30,20 @@ struct HomeView: View {
                     )
                     .padding(.horizontal)
                 
-                
-                if accountViewModel.isEmpty{
+                if accountViewModel.isEmpty && loaded{
                     VStack {
-                        Spacer() // Push content down
+                        Spacer()
                         Text("Add an Account!")
                             .padding()
                             .fontWeight(.bold)
                             .font(.subheadline)
-                        Spacer() // Push content up
+                        Spacer()
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure the text stays in the center horizontally
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 else {
                     AccountView()
                 }
-                
             }
             
             .toolbar {
@@ -86,13 +85,14 @@ struct HomeView: View {
                     }
                 }
             }
-            
             .onAppear {
                 Task {
                     await userViewModel.fetchUserData()
                     switch userViewModel.retrieveSymmetricKey() {
                     case .success(let key):
                         await accountViewModel.getAccountData(key: key)
+                        accountsEmpty = accountViewModel.accountData.isEmpty
+                        loaded = true
                     case.failure(let error):
                         print(error)
                         break
