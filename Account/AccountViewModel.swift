@@ -13,6 +13,7 @@ import CryptoKit
 @MainActor class AccountViewModel: ObservableObject {
     @Published var accountData : [Account] = []
     @Published var totalPrice: Double = 0
+    @Published var isEmpty: Bool = true;
     let db = Firestore.firestore()
     func getAccountData(key: SymmetricKey) async {
             if let userId = Auth.auth().currentUser?.uid {
@@ -31,6 +32,7 @@ import CryptoKit
                         }
                     }
                     self.accountData = accountsArray
+                    isEmpty = self.accountData.isEmpty
                     self.decryptPasswords(key: key)
                     self.calculateTotalCost()
                 } catch {

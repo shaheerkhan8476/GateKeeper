@@ -14,7 +14,7 @@ struct HomeView: View {
     @EnvironmentObject var accountViewModel: AccountViewModel
     @State private var showSheet = false
     @State private var showUserSheet = false
-    @State private var total: Double? = 0.0
+    @State private var accountsEmpty: Bool = false;
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -28,8 +28,25 @@ struct HomeView: View {
                         )
                     )
                     .padding(.horizontal)
-                AccountView()
+                
+                
+                if accountViewModel.isEmpty{
+                    VStack {
+                        Spacer() // Push content down
+                        Text("Add an Account!")
+                            .padding()
+                            .fontWeight(.bold)
+                            .font(.subheadline)
+                        Spacer() // Push content up
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure the text stays in the center horizontally
+                }
+                else {
+                    AccountView()
+                }
+                
             }
+            
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
@@ -53,6 +70,11 @@ struct HomeView: View {
                     .sheet(isPresented: $showSheet) {
                         AddAccountView(showAddAccountSheet: $showSheet)
                             .presentationDetents([.fraction(0.40)])
+                            .onDisappear {
+                                    if !accountViewModel.accountData.isEmpty {
+                                        accountsEmpty = false
+                                    }
+                            }
                     }
                 }
                 
@@ -64,6 +86,7 @@ struct HomeView: View {
                     }
                 }
             }
+            
             .onAppear {
                 Task {
                     await userViewModel.fetchUserData()
@@ -75,7 +98,9 @@ struct HomeView: View {
                         break
                     }
                 }
+                
             }
+            
         }
     }
 }
