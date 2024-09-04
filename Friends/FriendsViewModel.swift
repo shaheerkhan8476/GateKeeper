@@ -40,6 +40,7 @@ import FirebaseFirestore
             }
         }
     }
+
     func addFriend(friend: String) async throws {
         if let userId = Auth.auth().currentUser?.uid {
             if friend.lowercased() == Auth.auth().currentUser?.email?.lowercased() {
@@ -86,10 +87,10 @@ import FirebaseFirestore
                             
                             let friendDocRef = db.collection("users").document(friendID)
                             
-                       let currentUserData: [String: Any] = [
-                            "email" : data["email"],
-                            "name" : data["name"]
-                        ]
+                           let currentUserData: [String: Any] = [
+                                "email" : data["email"] as Any,
+                                "name" : data["name"] as Any
+                            ]
                             
                             try await friendDocRef.updateData([
                                 "friends": FieldValue.arrayUnion([currentUserData])

@@ -7,19 +7,25 @@
 
 import Foundation
 import CryptoKit
-class User: Identifiable {
+
+class User: Identifiable, Codable{
     var name: String?
     var email: String?
     var id: String?
     var profileImageUrl: String?
-    var friends: [String?]
     
-    init( name: String? = nil, email: String? = nil, id: String? = nil, profileImageUrl: String? = nil, friends: [String?] = []) {
+    enum CodingKeys: String, CodingKey {
+        case name = "name"
+        case email = "email"
+        case id = "id"
+        case profileImageUrl = "profileImageUrl"
+    }
+    
+    init( name: String? = nil, email: String? = nil, id: String? = nil, profileImageUrl: String? = nil) {
         self.name = name
         self.email = email
         self.id = id
         self.profileImageUrl = profileImageUrl
-        self.friends = friends
     }
     
     func retrieveSymmetricKey() -> SymmetricKey {

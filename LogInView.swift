@@ -78,14 +78,13 @@ struct LogInView: View {
                 print(error!.localizedDescription)
             }
             else {
-                let newUser: User = User(email: authResult?.user.email, id: authResult?.user.uid)
                 let documentName = authResult?.user.uid ?? "No UID"
-                Task{
+                Task {
                     do {
                         try await db.collection("users").document(documentName).setData([
                             "name": name,
                             "email": email,
-                            "id": newUser.id ?? "",
+                            "id": authResult?.user.uid  ?? "",
                         ])
                         print("Document successfully written!")
                     } catch {
@@ -95,4 +94,4 @@ struct LogInView: View {
             }
         }
     }
-    }
+}

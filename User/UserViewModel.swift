@@ -25,11 +25,10 @@ import SwiftUI
             let docRef = db.collection("users").document(userId)
             do {
                 let document = try await docRef.getDocument()
-                if let data = document.data(), document.exists {
-                    let user = User(name: data["name"] as? String, email: data["email"] as? String, id: userId, profileImageUrl: data["profileImageUrl"] as? String)
-                    self.userData = user
-                } else {
-                    print("Document does not exist")
+                do {
+                    self.userData = try document.data(as: User.self)
+                } catch {
+                    print("failed to decode User: \(error)")
                 }
             } catch {
                 print("Error getting document: \(error)")
