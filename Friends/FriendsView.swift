@@ -11,6 +11,13 @@ struct FriendsView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var friendsViewModel: FriendsViewModel
     @State var showAddSheet: Bool = false
+    private func deleteAccounts(at offsets: IndexSet, from friends: [Friend]) async {
+        for index in offsets {
+            let friend = friends[index]
+            await friendsViewModel.deleteFriend(friend: friend)
+        }
+    }
+
     var body: some View {
         
         let friends = friendsViewModel.friendData
@@ -31,7 +38,11 @@ struct FriendsView: View {
                         FriendItemView(friend: friend)
                             .listRowSeparatorTint(.purple)
                     }
-                    
+                    .onDelete { friend in
+                        Task {
+                            await deleteAccounts(at: friend, from: friends)
+                        }
+                    }
                 }
                 .listStyle(.inset)
                 .padding()
@@ -53,9 +64,7 @@ struct FriendsView: View {
                     }
                 }
             }
-            
         }
-        
         .onAppear() {
             Task {
                 try await friendsViewModel.getFriends()

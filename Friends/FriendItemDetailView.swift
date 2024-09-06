@@ -12,9 +12,12 @@ struct FriendItemDetailView: View {
     var body: some View {
         VStack {
             Text(friend.name)
+                .font(.headline)
             Text(friend.email)
-            
+                .font(.headline)
         }
+        .padding()
+        
     }
 }
 

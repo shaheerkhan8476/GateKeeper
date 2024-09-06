@@ -25,7 +25,6 @@ struct AccountView: View {
                         switch userViewModel.retrieveSymmetricKey() {
                         case .success(let key):
                             await accountViewModel.getAccountData(key: key)
-                        
                         case .failure(let error):
                             print(error)
                         }

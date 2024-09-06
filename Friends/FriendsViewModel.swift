@@ -66,7 +66,6 @@ import FirebaseFirestore
                             if let currentUserSnapshot = try? await docRef.getDocument(),
                                let currentUserData = currentUserSnapshot.data(),
                                let currentFriends = currentUserData["friends"] as? [[String: Any]] {
-                                
                                 let friendAlreadyExists = currentFriends.contains { friend in
                                     if let friendEmail = friend["email"] as? String {
                                         return friendEmail == email
@@ -88,8 +87,8 @@ import FirebaseFirestore
                             let friendDocRef = db.collection("users").document(friendID)
                             
                            let currentUserData: [String: Any] = [
-                                "email" : data["email"] as Any,
-                                "name" : data["name"] as Any
+                                "email" : currentUserData["email"] as Any,
+                                "name" : currentUserData["name"] as Any
                             ]
                             
                             try await friendDocRef.updateData([
@@ -107,4 +106,60 @@ import FirebaseFirestore
             }
         }
     }
+    func deleteFriend(friend: Friend) async {
+        let friendEmail: String = friend.email
+        if let userId = Auth.auth().currentUser?.uid {
+            let docRef = db.collection("users").document(userId)
+            let collectionRef = db.collection("users")
+            if let document = try? await docRef.getDocument() {
+                if document.exists {
+                    if let data = document.data(),
+                       let friendsRead = data["friends"] as? [[String: Any]] {
+                        for friendDoc in friendsRead {
+                            if let email = friendDoc["email"] as? String, email == friendEmail {
+                                let friendRemove = friendDoc
+                                do {
+                                    
+                                    try await docRef.updateData([
+                                        "friends": FieldValue.arrayRemove([friendRemove])
+                                    ])
+                                    
+                                   
+                                    let querySnapshot = try await collectionRef.whereField("email", isEqualTo: friendEmail).getDocuments()
+                                    if let friendDocument = querySnapshot.documents.first {
+                                        let friendData = friendDocument.data()
+                                        
+                                        if let friendID = friendData["id"] as? String {
+                                            let friendDocRef = db.collection("users").document(friendID)
+                                            
+                                            // Create the current user's data to remove from the friend's list
+                                            let currentUserData: [String: Any] = [
+                                                "email": data["email"] as Any,
+                                                "name": data["name"] as Any
+                                            ]
+                                            
+                                            try await friendDocRef.updateData([
+                                                "friends": FieldValue.arrayRemove([currentUserData])
+                                            ])
+                                        }
+                                    }
+
+                                    // Remove the friend from the local friendData array
+                                    friendData.removeAll { existingFriend in
+                                        existingFriend.email == friendEmail
+                                    }
+                                    
+                                } catch {
+                                    print("Error removing friend: \(error)")
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                print("Error getting document")
+            }
+        }
+    }
+
 }
