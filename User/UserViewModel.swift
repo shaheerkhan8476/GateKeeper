@@ -122,4 +122,20 @@ import SwiftUI
         
     }
     
+    func editName(name: String) async {
+        if let userid = Auth.auth().currentUser?.uid {
+            let docRef = db.collection("users").document(userid)
+            if let data = try? await docRef.getDocument().data() {
+                try? await docRef.updateData(
+                [
+                    "name" : name
+                ])
+                self.userData?.name = name
+            } else {
+                print("Error getting document")
+            }
+            
+        }
+    }
+    
 }

@@ -19,6 +19,7 @@ struct ProfileView: View {
     @State var data: Data?
     @State var selectedItem: [PhotosPickerItem] = []
     @State var dirty: Bool = false
+    @State private var editedName: String = ""
     var body: some View {
         if let userData = userViewModel.userData {
             NavigationStack{
@@ -73,15 +74,18 @@ struct ProfileView: View {
                     }
                     
                     HStack {
-                        Text("Name: ").bold()
+                        Text("Name: ")
                         Spacer()
-                        Text(userData.name ?? "User Data").bold()
+                        TextField("\(userViewModel.userData?.name ?? "Enter Name")", text: $editedName).bold().foregroundColor(Color.white)
+                        
+                        
                     }
                     .padding()
                     
                     Divider()
                     
                     HStack {
+                        
                         Text("Email: ").bold()
                         Spacer()
                         Text(userData.email ?? "No Email").bold()
@@ -127,15 +131,23 @@ struct ProfileView: View {
                         Spacer()
                         
                         Button("Save Profile") {
-                            guard let imageData = data else { return }
+                            print("Hi")
+                            
                             Task {
-                                await userViewModel.uploadProfilePicture(imageData: imageData)
+                                print("Editedname \(editedName) uwergob: \(userViewModel.userData?.name)")
+                                if !editedName.isEmpty && editedName != userViewModel.userData?.name {
+                                    await userViewModel.editName(name: editedName)
+                                }
+                                
+                                if let imageData = data {
+                                    await userViewModel.uploadProfilePicture(imageData: imageData)
+                                }
                             }
                             isPresented = false
                             dirty = false
+                            
                         }
                         
-                        .disabled(data == nil)
                         .padding()
                         .background(Color.purple)
                         .foregroundColor(.white)

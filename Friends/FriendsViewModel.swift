@@ -119,36 +119,26 @@ import FirebaseFirestore
                             if let email = friendDoc["email"] as? String, email == friendEmail {
                                 let friendRemove = friendDoc
                                 do {
-                                    
                                     try await docRef.updateData([
                                         "friends": FieldValue.arrayRemove([friendRemove])
                                     ])
-                                    
-                                   
                                     let querySnapshot = try await collectionRef.whereField("email", isEqualTo: friendEmail).getDocuments()
                                     if let friendDocument = querySnapshot.documents.first {
                                         let friendData = friendDocument.data()
-                                        
                                         if let friendID = friendData["id"] as? String {
                                             let friendDocRef = db.collection("users").document(friendID)
-                                            
-                                            // Create the current user's data to remove from the friend's list
                                             let currentUserData: [String: Any] = [
                                                 "email": data["email"] as Any,
                                                 "name": data["name"] as Any
                                             ]
-                                            
                                             try await friendDocRef.updateData([
                                                 "friends": FieldValue.arrayRemove([currentUserData])
                                             ])
                                         }
                                     }
-
-                                    // Remove the friend from the local friendData array
                                     friendData.removeAll { existingFriend in
                                         existingFriend.email == friendEmail
                                     }
-                                    
                                 } catch {
                                     print("Error removing friend: \(error)")
                                 }
@@ -161,5 +151,4 @@ import FirebaseFirestore
             }
         }
     }
-
 }
