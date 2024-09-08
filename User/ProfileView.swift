@@ -74,11 +74,11 @@ struct ProfileView: View {
                     }
                     
                     HStack {
-                        Text("Name: ")
+                        Text("Name: ").bold()
                         Spacer()
-                        TextField("\(userViewModel.userData?.name ?? "Enter Name")", text: $editedName).bold().foregroundColor(Color.white)
-                        
-                        
+                        TextField("Enter Name", text: $editedName)
+                            .multilineTextAlignment(.trailing)
+                                    .frame(maxWidth: .infinity)
                     }
                     .padding()
                     
@@ -105,7 +105,6 @@ struct ProfileView: View {
                     }
                     .listStyle(.inset)
                     
-                    
                     Spacer()
                      
                     HStack {
@@ -129,16 +128,14 @@ struct ProfileView: View {
                         .controlSize(.regular)
                         
                         Spacer()
-                        
+
                         Button("Save Profile") {
                             print("Hi")
                             
                             Task {
-                                print("Editedname \(editedName) uwergob: \(userViewModel.userData?.name)")
                                 if !editedName.isEmpty && editedName != userViewModel.userData?.name {
                                     await userViewModel.editName(name: editedName)
                                 }
-                                
                                 if let imageData = data {
                                     await userViewModel.uploadProfilePicture(imageData: imageData)
                                 }
@@ -159,9 +156,11 @@ struct ProfileView: View {
                     }.padding()
                 }
                 .onAppear {
+                    
                     Task {
                         await userViewModel.fetchUserData()
                     }
+                    editedName = userViewModel.userData?.name ?? ""
                 }
                 .toolbar {
                             ToolbarItem(placement: .principal) {

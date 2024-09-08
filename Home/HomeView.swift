@@ -45,7 +45,7 @@ struct HomeView: View {
                     AccountView()
                 }
             }
-            
+
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
@@ -70,13 +70,12 @@ struct HomeView: View {
                         AddAccountView(showAddAccountSheet: $showSheet)
                             .presentationDetents([.fraction(0.40)])
                             .onDisappear {
-                                    if !accountViewModel.accountData.isEmpty {
-                                        accountsEmpty = false
-                                    }
+                                if !accountViewModel.accountData.isEmpty {
+                                    accountsEmpty = false
+                                }
                             }
                     }
                 }
-                
                 ToolbarItem(placement: .bottomBar) {
                     HStack {
                         Text("Total Monthly Cost: $\(accountViewModel.totalPrice, specifier: "%.2f")")

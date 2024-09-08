@@ -21,6 +21,7 @@ struct FriendsView: View {
     var body: some View {
         
         let friends = friendsViewModel.friendData
+        
         NavigationStack{
             VStack(alignment: .leading, spacing: 0) {
                 Text("Friends List")
@@ -35,6 +36,7 @@ struct FriendsView: View {
                     .padding(.horizontal)
                 List {
                     ForEach(friendsViewModel.friendData, id: \.email) { friend in
+                        
                         FriendItemView(friend: friend)
                             .listRowSeparatorTint(.purple)
                     }

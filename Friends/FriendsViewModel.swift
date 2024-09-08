@@ -30,9 +30,20 @@ import FirebaseFirestore
                 if let friendsRead = data["friends"] as? [[String: Any]] {
                     for friend in friendsRead {
                         if let name = friend["name"] as? String,
-                           let email = friend["email"] as? String {
-                            let newFriend = Friend(email: email, name: name)
-                            friendArray.append(newFriend)
+                           let email = friend["email"] as? String,
+                           let id = friend["id"] as? String
+                            {
+                            let friendDocRef = db.collection("users").document(id)
+                            let querySnapshot = try await friendDocRef.getDocument()
+                            let friendData = querySnapshot.data()
+                            if let profileImageUrl = friendData?["profileImageUrl"] as? String {
+                                let newFriend = Friend(email: email, name: name, profileImageUrl: profileImageUrl , id: id)
+                                friendArray.append(newFriend)
+                            }
+                            else {
+                                let newFriend = Friend(email: email, name: name, profileImageUrl: "" , id: id)
+                                friendArray.append(newFriend)
+                            }
                         }
                     }
                 }
@@ -48,12 +59,10 @@ import FirebaseFirestore
             }
             let collectionRef = db.collection("users")
             let docRef = db.collection("users").document(userId)
-            
             let document = try await docRef.getDocument()
             if document.exists {
                 if let currentUserData = document.data() {
                     let querySnapshot = try await collectionRef.whereField("email", isEqualTo: friend).getDocuments()
-                    
                     if querySnapshot.documents.isEmpty {
                         throw FriendsViewModelError.userNotFound
                     }
@@ -61,8 +70,11 @@ import FirebaseFirestore
                         let data = document.data()
                         if let email = data["email"] as? String,
                            let name = data["name"] as? String,
-                           let friendID = data["id"] as? String {
-                            let newFriend: Friend = Friend(email: email, name: name)
+                           let friendID = data["id"] as? String,
+                            let profileImageUrl = data["profileImageUrl"] as? String {
+                                
+                            let newFriend: Friend = Friend(email: email, name: name, profileImageUrl: profileImageUrl, id: friendID)
+                                
                             if let currentUserSnapshot = try? await docRef.getDocument(),
                                let currentUserData = currentUserSnapshot.data(),
                                let currentFriends = currentUserData["friends"] as? [[String: Any]] {
@@ -76,10 +88,14 @@ import FirebaseFirestore
                                     throw FriendsViewModelError.friendAlreadyExists
                                 }
                             }
+                            
                             let newFriendData: [String: Any] = [
                                 "email" : email,
-                                "name" : name
+                                "name" : name,
+                                "id" : friendID,
+                                "profileImageUrl" : profileImageUrl
                             ]
+                            
                             try await docRef.updateData([
                                 "friends": FieldValue.arrayUnion([newFriendData])
                             ])
@@ -88,14 +104,16 @@ import FirebaseFirestore
                             
                            let currentUserData: [String: Any] = [
                                 "email" : currentUserData["email"] as Any,
-                                "name" : currentUserData["name"] as Any
-                            ]
+                                "name" : currentUserData["name"] as Any,
+                                "id" : currentUserData["id"] as Any,
+                                "profileImageUrl" : currentUserData["profileImageUrl"] as Any
+                           ]
                             
                             try await friendDocRef.updateData([
                                 "friends": FieldValue.arrayUnion([currentUserData])
                             ])
                             
-                            self.friendData.append(newFriend)
+                            self.friendData.append(newFriend)                            
                         } else {
                             print("Error: Name or email is missing in the document")
                         }
@@ -129,7 +147,9 @@ import FirebaseFirestore
                                             let friendDocRef = db.collection("users").document(friendID)
                                             let currentUserData: [String: Any] = [
                                                 "email": data["email"] as Any,
-                                                "name": data["name"] as Any
+                                                "name": data["name"] as Any,
+                                                "id" : data["id"] as Any,
+                                                "profileImageUrl" : data["profileImageUrl"] as Any 
                                             ]
                                             try await friendDocRef.updateData([
                                                 "friends": FieldValue.arrayRemove([currentUserData])

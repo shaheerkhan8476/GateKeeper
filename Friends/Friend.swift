@@ -9,4 +9,6 @@ import Foundation
 struct Friend {
     let email: String
     let name: String
+    let profileImageUrl: String
+    let id: String
 }
