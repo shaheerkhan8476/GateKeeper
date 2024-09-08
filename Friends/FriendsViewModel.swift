@@ -29,14 +29,15 @@ import FirebaseFirestore
             if data.exists {
                 if let friendsRead = data["friends"] as? [[String: Any]] {
                     for friend in friendsRead {
-                        if let name = friend["name"] as? String,
+                        if var name = friend["name"] as? String,
                            let email = friend["email"] as? String,
                            let id = friend["id"] as? String
                             {
                             let friendDocRef = db.collection("users").document(id)
                             let querySnapshot = try await friendDocRef.getDocument()
                             let friendData = querySnapshot.data()
-                            if let profileImageUrl = friendData?["profileImageUrl"] as? String {
+                            if let profileImageUrl = friendData?["profileImageUrl"] as? String,
+                            let name = friendData?["name"] as? String {
                                 let newFriend = Friend(email: email, name: name, profileImageUrl: profileImageUrl , id: id)
                                 friendArray.append(newFriend)
                             }
@@ -149,7 +150,7 @@ import FirebaseFirestore
                                                 "email": data["email"] as Any,
                                                 "name": data["name"] as Any,
                                                 "id" : data["id"] as Any,
-                                                "profileImageUrl" : data["profileImageUrl"] as Any 
+                                                "profileImageUrl" : data["profileImageUrl"] as Any
                                             ]
                                             try await friendDocRef.updateData([
                                                 "friends": FieldValue.arrayRemove([currentUserData])
