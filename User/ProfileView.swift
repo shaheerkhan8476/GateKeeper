@@ -13,7 +13,7 @@ import PhotosUI
 import FirebaseStorage
 
 struct ProfileView: View {
-    @Binding var isPresented: Bool
+    @Environment (\.dismiss) var dismiss
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var accountViewModel: AccountViewModel
     @State var data: Data?
@@ -140,7 +140,7 @@ struct ProfileView: View {
                                     await userViewModel.uploadProfilePicture(imageData: imageData)
                                 }
                             }
-                            isPresented = false
+                            dismiss()
                             dirty = false
                             
                         }

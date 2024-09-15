@@ -11,10 +11,13 @@ struct AccountItemDetailView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var accountViewModel: AccountViewModel
+    @EnvironmentObject var friendViewModel: FriendsViewModel
     @State var name: String
     @State  var password: String
     @State var price: String
+    @State private var showAddUserSheet: Bool = false
     var body: some View {
+        let authorizedUsers = account.authorizedUsers
         VStack(spacing: 20) {
             HStack {
                 Text("Account Name:")
@@ -38,6 +41,24 @@ struct AccountItemDetailView: View {
             TextField("Enter Subscription Price: ", text: $price)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
+            
+            Spacer()
+            VStack {
+                Text("Authorized Users").font(.headline)
+                if account.authorizedUsers.isEmpty {
+                    Text("Add Friends to Account!")
+                }
+                Button(action: {
+                    showAddUserSheet.toggle()
+                }) {
+                    Label("Add User to Account", systemImage: "person.circle.fill")
+                }
+                .sheet(isPresented: $showAddUserSheet) {
+                    AddUserSheetView(account: account)
+//                        .presentationDetents([.fraction(1)])
+                }
+            }
+            
             
             Button(action: {
                 Task {

@@ -11,24 +11,56 @@ import FirebaseCore
 import FirebaseFirestore
 import CryptoKit
 @MainActor class AccountViewModel: ObservableObject {
+    
     @Published var accountData : [Account] = []
     @Published var totalPrice: Double = 0
     @Published var isEmpty: Bool = true;
+    
     let db = Firestore.firestore()
+    
     func getAccountData(key: SymmetricKey) async {
             if let userId = Auth.auth().currentUser?.uid {
                 do {
                     let docRef = db.collection("users").document(userId).collection("accounts")
                     let querySnapshot = try await docRef.getDocuments()
                     var accountsArray: [Account] = []
+                    var friendsArray: [Friend] = []
                     for document in querySnapshot.documents {
                         let data = document.data()
+                        
                         if let accountName = data["name"] as? String,
                            let accountPassword = data["password"] as? String,
                            let accountPrice = data["price"] as? Double,
                            let accountId = data["id"] as? String {
-                            let account = Account(name: accountName, password: accountPassword, id: accountId, price: accountPrice)
-                            accountsArray.append(account)
+                            if let authorizedUsers = data["authorizedUsers"] as? [String] {
+                                
+                                for friendID in authorizedUsers {
+                                    print("hello")
+                                    let friendDocRef = db.collection("users").document(friendID)
+                                    let friendQuerySnapshot = try await friendDocRef.getDocument()
+                                    let friendData = friendQuerySnapshot.data()
+                                    
+                                    if let friendName = friendData?["name"] as? String,
+                                       let friendEmail = friendData?["email"] as? String,
+                                       let friendUrl = friendData?["profileImageUrl"] as? String {
+                                        print("friend Name \(friendName)")
+                                        let newFriend = Friend(email: friendEmail, name: friendName, profileImageUrl: friendUrl, id: friendID)
+                                        print(newFriend.email)
+                                        friendsArray.append(newFriend)
+                                        
+                                    }
+                                    
+                                    
+                                    
+                                }
+                                let account = Account(name: accountName, password: accountPassword, id: accountId, price: accountPrice, authorizedUsers: friendsArray)
+                                accountsArray.append(account)
+                               
+                            }
+                            else {
+                                let account = Account(name: accountName, password: accountPassword, id: accountId, price: accountPrice)
+                                accountsArray.append(account)
+                            }
                         }
                     }
                     self.accountData = accountsArray
@@ -115,7 +147,6 @@ import CryptoKit
                         total += account.price
                     }
                 }
-            
             totalPrice = total
         }
     
@@ -160,4 +191,34 @@ import CryptoKit
         
     }
     
+    func addAuthorizedUsers(authorizedUsers: Set<Friend>, account: Account) async {
+        if let userId = Auth.auth().currentUser?.uid {
+            do {
+                let docRef = db.collection("users").document(userId).collection("accounts")
+                let querySnapshot = try await docRef.getDocuments()
+                
+                for document in querySnapshot.documents {
+                    let data = document.data()
+                    let accountID = data["id"] as? String
+                    
+                    if accountID == account.id {
+                        if let index = self.accountData.firstIndex(where: { $0.id == account.id }) {
+                           
+                            let authorizedUserIds: [String] = authorizedUsers.map { $0.id }
+                           
+                            try await docRef.document(document.documentID).updateData([
+                                "authorizedUsers": authorizedUserIds
+                            ])
+                            
+                            self.accountData[index].authorizedUsers = Array(authorizedUsers)
+                        }
+                    }
+                }
+            } catch {
+                print("Error updating document \(error)")
+            }
+        }
+    }
+
+
 }

@@ -60,7 +60,7 @@ struct FriendsView: View {
                                 .tint(.purple)
                         }
                         .sheet(isPresented: $showAddSheet) {
-                            AddFriendView(showAddSheet: $showAddSheet)
+                            AddFriendView()
                                 .presentationDetents([.fraction(0.40)])
                         }
                     }

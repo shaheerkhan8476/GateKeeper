@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct AddAccountView: View {
-    @Binding var showAddAccountSheet: Bool
+    @Environment (\.dismiss) var dismiss
     @State private var accountName: String = ""
     @State private var accountPassword: String = ""
     @State private var accountPrice: String = ""
@@ -46,7 +46,7 @@ struct AddAccountView: View {
                                 print("Failed to retrieve symmetric key")
                             }
                         }
-                        showAddAccountSheet = false
+                        dismiss()
                     }
                 }
             }, label: {

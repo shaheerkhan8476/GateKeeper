@@ -6,7 +6,7 @@
 //
 
 import Foundation
-struct Friend {
+struct Friend: Identifiable, Hashable {
     let email: String
     let name: String
     let profileImageUrl: String

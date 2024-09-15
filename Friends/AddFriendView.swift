@@ -8,7 +8,7 @@ import SwiftUI
 
 struct AddFriendView: View {
     @EnvironmentObject var friendsViewModel: FriendsViewModel
-    @Binding var showAddSheet: Bool
+    @Environment (\.dismiss) var dismiss
     @State var friendEmail: String = ""
     @State private var errorMessage: String? = nil
     var body: some View {
@@ -29,7 +29,7 @@ struct AddFriendView: View {
                 Task {
                     do {
                         try await friendsViewModel.addFriend(friend: friendEmail)
-                        showAddSheet.toggle()
+                        dismiss()
                     } catch {
                         
                         guard let error = error as? FriendsViewModel.FriendsViewModelError else {

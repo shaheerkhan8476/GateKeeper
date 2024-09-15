@@ -10,6 +10,7 @@ import FirebaseCore
 import FirebaseFirestore
 
 struct HomeView: View {
+    
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var accountViewModel: AccountViewModel
     @State private var showSheet = false
@@ -54,7 +55,7 @@ struct HomeView: View {
                         Label("User Profile", systemImage: "person.circle.fill")
                     }
                     .sheet(isPresented: $showUserSheet) {
-                        ProfileView(isPresented: $showUserSheet)
+                        ProfileView()
                             .presentationDetents([.fraction(1)])
                     }
                 }
@@ -67,7 +68,7 @@ struct HomeView: View {
                             .cornerRadius(5)
                     }
                     .sheet(isPresented: $showSheet) {
-                        AddAccountView(showAddAccountSheet: $showSheet)
+                        AddAccountView()
                             .presentationDetents([.fraction(0.40)])
                             .onDisappear {
                                 if !accountViewModel.accountData.isEmpty {
@@ -97,9 +98,7 @@ struct HomeView: View {
                         break
                     }
                 }
-                
             }
-            
         }
     }
 }
