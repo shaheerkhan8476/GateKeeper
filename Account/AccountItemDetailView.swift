@@ -42,11 +42,19 @@ struct AccountItemDetailView: View {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
             
-            Spacer()
+            
             VStack {
                 Text("Authorized Users").font(.headline)
                 if account.authorizedUsers.isEmpty {
                     Text("Add Friends to Account!")
+                }
+                else {
+                    List(authorizedUsers) { friend in
+                        Text(friend.name)
+                        .listRowSeparatorTint(.purple)
+                    }
+                    .listStyle(.inset)
+                    .padding()
                 }
                 Button(action: {
                     showAddUserSheet.toggle()
@@ -55,11 +63,10 @@ struct AccountItemDetailView: View {
                 }
                 .sheet(isPresented: $showAddUserSheet) {
                     AddUserSheetView(account: account)
-//                        .presentationDetents([.fraction(1)])
                 }
             }
             
-            
+            Spacer()
             Button(action: {
                 Task {
                     switch userViewModel.retrieveSymmetricKey() {

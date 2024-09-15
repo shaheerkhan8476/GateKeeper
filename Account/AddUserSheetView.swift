@@ -40,9 +40,9 @@ struct AddUserSheetView: View {
                 }
             } label: {
                 if multiSelection.count > 1 {
-                    Text("Add Friends")
+                    Text("Set Authorized Users")
                 } else {
-                    Text("Add Friend")
+                    Text("Set Authorized User")
                 }
             }
         }
